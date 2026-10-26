@@ -13,7 +13,7 @@
         <div v-if="!bannerDismissed" class="feod-banner">
           <div ref="bannerInnerRef" class="feod-banner__inner">
             <span class="feod-banner__badge">Beta</span>
-            <span class="feod-banner__text">Документация для beta‑теста, возможны ошибки и неточности.</span>
+            <span class="feod-banner__text">Открытый beta‑тест: документация меняется, возможны ошибки и неточности.</span>
             <span
               class="feod-banner__hint"
               aria-label="Документация пока меняется и нуждается в помощи — это не финальный справочник."
@@ -49,7 +49,7 @@
     <div v-if="!bannerDismissed" class="feod-banner">
       <div ref="bannerInnerRef" class="feod-banner__inner">
         <span class="feod-banner__badge">Beta</span>
-        <span class="feod-banner__text">Документация доступна только для закрытого beta‑теста.</span>
+        <span class="feod-banner__text">Открытый beta‑тест: проект и документация меняются, возможны ошибки.</span>
         <span
           class="feod-banner__hint"
           aria-label="Документация пока меняется и нуждается в помощи — это не финальный справочник."

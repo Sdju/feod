@@ -4,6 +4,10 @@
 
 ## Примеры использования
 
+::: warning Примеры сгенерированы AI
+Все примеры в `examples/` написаны с помощью AI и могут содержать неидиоматичный код и ошибки. Если вы знаете Vue, Nuxt, React, Next, Angular, Svelte или SvelteKit, поможем вместе: откройте issue или pull request на [GitHub](https://github.com/Sdju/feod), чтобы пример соответствовал практикам вашего фреймворка и правилам FEOD.
+:::
+
 - [Примеры для всех заявленных фреймворков](/examples/frameworks) — Vue, React, Angular, Svelte, Nuxt, Next и SvelteKit
 - [Vue и React SPA quick start](/examples/spa) — запуск магазина, настройка алиасов и проверка архитектурных границ
 - [Переход на FEOD](/examples/migration) — пошаговое руководство по миграции существующего проекта
