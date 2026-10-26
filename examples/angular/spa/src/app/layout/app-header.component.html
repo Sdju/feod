@@ -1,0 +1,26 @@
+<header class="app-header">
+  <div class="app-header__container">
+    <a routerLink="/" class="app-header__logo">FEOD Shop</a>
+    <nav class="app-header__nav" aria-label="Основная навигация">
+      <ul class="app-header__nav-list">
+        @for (item of navigationItems; track item.path) {
+          <li class="app-header__nav-item">
+            <a
+              [routerLink]="item.path"
+              routerLinkActive="app-header__nav-link--active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="app-header__nav-link"
+            >{{ item.name }}</a>
+          </li>
+        }
+        <li class="app-header__nav-item">
+          <a routerLink="/profile" routerLinkActive="app-header__nav-link--active" class="app-header__nav-link">Профиль</a>
+        </li>
+      </ul>
+    </nav>
+    <div class="app-header__widgets">
+      <app-cart-widget />
+      <app-user-widget />
+    </div>
+  </div>
+</header>

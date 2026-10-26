@@ -1,0 +1,42 @@
+import type { FeodConfig } from "../src/modules/ProjectConfig/index.js";
+import { frontendLayers } from "../src/modules/Layers/index.js";
+
+type Fixture = { label: string; config: FeodConfig; file: string; code: string; error?: string };
+const globals: FeodConfig = { globals: { allowedFiles: ["**/*.d.ts", "**/*.d.mts", "**/*.d.cts"] } };
+const modules: FeodConfig = { modules: { forbiddenNames: ["shared", "utils"] } };
+const code = "export {};";
+export const structureCases: Fixture[] = [
+  ...["env.d.ts", "nested/env.d.mts", "env.d.cts", ".hidden/env.d.ts"].map(file => ({ label: `declaration ${file}`, config: globals, file: `src/global/${file}`, code })),
+  { label: "global implementation rejected", config: globals, file: "src/global/runtime.ts", code, error: "invalidGlobalFile" },
+  { label: "non-global implementation unaffected", config: globals, file: "src/app/runtime.ts", code },
+  { label: "default globals unrestricted", config: {}, file: "src/global/runtime.ts", code },
+  { label: "project chooses exact declaration extension", config: { globals: { allowedFiles: ["**/*.d.ts"] } }, file: "src/global/env.d.mts", code, error: "invalidGlobalFile" },
+  { label: "renamed globals role", config: { globals: globals.globals, layers: { ambient: { dir: "types", role: "global", imports: [] } } }, file: "src/types/runtime.ts", code, error: "invalidGlobalFile" },
+  { label: "globals name without role is ordinary layer", config: { globals: globals.globals, layers: { global: { imports: [] } } }, file: "src/global/runtime.ts", code },
+  { label: "nested layer owns global-looking path", config: { globals: globals.globals, layers: { ...frontendLayers, nested: { dir: "global/runtime", imports: [] } } }, file: "src/global/runtime/file.ts", code },
+  { label: "global ignore", config: { ...globals, ignore: ["src/global/generated/**"] }, file: "src/global/generated/runtime.ts", code },
+  { label: "global default inherits", config: { rootDefault: globals, roots: { server: {} } }, file: "server/global/runtime.ts", code, error: "invalidGlobalFile" },
+  { label: "global root replaces patterns", config: { rootDefault: globals, roots: { server: { globals: { allowedFiles: ["**/runtime.ts"] } } } }, file: "server/global/runtime.ts", code },
+  { label: "global empty override disables", config: { rootDefault: globals, roots: { server: { globals: { allowedFiles: [] } } } }, file: "server/global/runtime.ts", code },
+  { label: "global layerDirs override", config: { ...globals, layerDirs: { global: "globals" } }, file: "src/globals/runtime.ts", code, error: "invalidGlobalFile" },
+  { label: "top-level forbidden module", config: modules, file: "src/modules/utils/index.ts", code, error: "forbiddenModuleName" },
+  { label: "deep forbidden module", config: modules, file: "src/modules/Parent/modules/Child/modules/shared/index.ts", code, error: "forbiddenModuleName" },
+  { label: "forbidden ancestor owns nested file", config: modules, file: "src/modules/utils/modules/Child/index.ts", code, error: "forbiddenModuleName" },
+  { label: "implementation utils directory allowed", config: modules, file: "src/modules/User/utils/date.ts", code },
+  { label: "common layer utils directory allowed", config: modules, file: "src/common/utils/date.ts", code },
+  { label: "module names exact match", config: modules, file: "src/modules/utils-extra/index.ts", code },
+  { label: "module names case sensitive", config: modules, file: "src/modules/Utils/index.ts", code },
+  { label: "default module names unrestricted", config: {}, file: "src/modules/utils/index.ts", code },
+  { label: "single-file forbidden module", config: { ...modules, singleFileModules: true }, file: "src/modules/utils.ts", code, error: "forbiddenModuleName" },
+  { label: "single-file declaration strips one extension", config: { modules: { forbiddenNames: ["types.d"] }, singleFileModules: true }, file: "src/modules/types.d.ts", code, error: "forbiddenModuleName" },
+  { label: "transit child forbidden name", config: { ...modules, transitModules: ["Hub"] }, file: "src/modules/Hub/utils/index.ts", code, error: "forbiddenModuleName" },
+  { label: "transit private implementation unaffected", config: { ...modules, transitModules: ["Hub"] }, file: "src/modules/Hub/_/utils/index.ts", code },
+  { label: "transit deep child forbidden name", config: { ...modules, transitModules: ["Hub"] }, file: "src/modules/Hub/Child/modules/utils/index.ts", code, error: "forbiddenModuleName" },
+  { label: "ordinary implementation is not transit child", config: modules, file: "src/modules/Hub/utils/index.ts", code },
+  { label: "module name ignore", config: { ...modules, ignore: ["src/modules/utils/**"] }, file: "src/modules/utils/index.ts", code },
+  { label: "renamed module layer", config: { ...modules, layers: { features: { dir: "domain", role: "modules", imports: ["features"] } } }, file: "src/domain/utils/index.ts", code, error: "forbiddenModuleName" },
+  { label: "modules name without role is ordinary layer", config: { ...modules, layers: { modules: { imports: [] } } }, file: "src/modules/utils/index.ts", code },
+  { label: "module empty override disables", config: { rootDefault: modules, roots: { server: { modules: { forbiddenNames: [] } } } }, file: "server/modules/utils/index.ts", code },
+  { label: "module root replaces names", config: { rootDefault: modules, roots: { server: { modules: { forbiddenNames: ["other"] } } } }, file: "server/modules/utils/index.ts", code },
+  { label: "nested FEOD root owns file", config: { rootDefault: modules, roots: { src: {}, "src/modules/utils": {} } }, file: "src/modules/utils/app/index.ts", code },
+];

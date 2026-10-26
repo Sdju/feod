@@ -1,0 +1,38 @@
+<section class="user-profile">
+  <header class="user-profile__header">
+    <img [src]="user.profile().avatar" [alt]="user.profile().name" class="user-profile__avatar">
+    <h1 class="user-profile__title">{{ editing() ? 'Редактирование профиля' : 'Профиль' }}</h1>
+  </header>
+  @if (editing()) {
+    <form class="user-profile__form" (submit)="$event.preventDefault(); save()">
+      <div class="form-group">
+        <label class="form-group__label" for="profile-name">Имя</label>
+        <input class="form-group__input" id="profile-name" name="name" autocomplete="name" required [value]="draft().name" (input)="updateField('name', $event)">
+      </div>
+      <div class="form-group">
+        <label class="form-group__label" for="profile-email">Email</label>
+        <input class="form-group__input" id="profile-email" name="email" type="email" autocomplete="email" required [value]="draft().email" (input)="updateField('email', $event)">
+      </div>
+      <div class="form-group">
+        <label class="form-group__label" for="profile-phone">Телефон</label>
+        <input class="form-group__input" id="profile-phone" name="phone" type="tel" autocomplete="tel" [value]="draft().phone" (input)="updateField('phone', $event)">
+      </div>
+      <div class="form-group">
+        <label class="form-group__label" for="profile-address">Адрес</label>
+        <textarea class="form-group__input form-group__textarea" id="profile-address" name="address" autocomplete="street-address" rows="3" [value]="draft().address" (input)="updateField('address', $event)"></textarea>
+      </div>
+      <div class="user-profile__actions">
+        <app-main-button type="submit">Сохранить</app-main-button>
+        <app-main-button variant="secondary" (buttonClick)="cancel()">Отмена</app-main-button>
+      </div>
+    </form>
+  } @else {
+    <div class="user-profile__info">
+      <div class="info-group"><span class="info-group__label">Имя</span><span class="info-group__value">{{ user.profile().name }}</span></div>
+      <div class="info-group"><span class="info-group__label">Email</span><span class="info-group__value">{{ user.profile().email }}</span></div>
+      <div class="info-group"><span class="info-group__label">Телефон</span><span class="info-group__value">{{ user.profile().phone }}</span></div>
+      <div class="info-group"><span class="info-group__label">Адрес</span><span class="info-group__value">{{ user.profile().address }}</span></div>
+      <app-main-button (buttonClick)="startEditing()">Редактировать</app-main-button>
+    </div>
+  }
+</section>

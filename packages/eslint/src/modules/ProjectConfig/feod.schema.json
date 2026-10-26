@@ -1,0 +1,535 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://feod.dev/feod.schema.json",
+  "title": "FEOD configuration",
+  "description": "Portable FEOD structure options shared by ESLint and Oxlint.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "srcRoot": {
+      "type": "string",
+      "minLength": 1,
+      "default": "src",
+      "description": "Deprecated single-root shorthand. Use roots instead.",
+      "pattern": "^(?![/\\\\]|[A-Za-z]:)"
+    },
+    "aliasPrefix": {
+      "$ref": "#/definitions/rootOptions/properties/aliasPrefix"
+    },
+    "aliasRoot": {
+      "$ref": "#/definitions/rootOptions/properties/aliasRoot"
+    },
+    "layerDirs": {
+      "$ref": "#/definitions/rootOptions/properties/layerDirs"
+    },
+    "layerAliases": {
+      "$ref": "#/definitions/rootOptions/properties/layerAliases"
+    },
+    "ignore": {
+      "$ref": "#/definitions/rootOptions/properties/ignore"
+    },
+    "transitModules": {
+      "$ref": "#/definitions/rootOptions/properties/transitModules"
+    },
+    "singleFileModules": {
+      "$ref": "#/definitions/rootOptions/properties/singleFileModules"
+    },
+    "modulePages": {
+      "$ref": "#/definitions/rootOptions/properties/modulePages"
+    },
+    "common": {
+      "$ref": "#/definitions/rootOptions/properties/common"
+    },
+    "levels": {
+      "$ref": "#/definitions/rootOptions/properties/levels"
+    },
+    "rootDefault": {
+      "$ref": "#/definitions/rootOptions",
+      "description": "Settings inherited by all roots. Object options merge by field; arrays replace inherited values."
+    },
+    "roots": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^(?![/\\\\]|[A-Za-z]:)"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/rootOptions"
+      },
+      "default": {
+        "src": {}
+      },
+      "description": "Source root paths relative to the project directory and their option overrides. Defaults to src when omitted."
+    },
+    "dependencies": {
+      "$ref": "#/definitions/rootOptions/properties/dependencies"
+    },
+    "layers": {
+      "$ref": "#/definitions/rootOptions/properties/layers"
+    },
+    "submodules": {
+      "$ref": "#/definitions/rootOptions/properties/submodules"
+    },
+    "imports": {
+      "$ref": "#/definitions/rootOptions/properties/imports"
+    },
+    "globals": {
+      "$ref": "#/definitions/rootOptions/properties/globals"
+    },
+    "modules": {
+      "$ref": "#/definitions/rootOptions/properties/modules"
+    },
+    "inventory": {
+      "$ref": "#/definitions/rootOptions/properties/inventory"
+    },
+    "cycles": {
+      "$ref": "#/definitions/rootOptions/properties/cycles"
+    },
+    "extra": {
+      "$ref": "#/definitions/rootOptions/properties/extra"
+    }
+  },
+  "definitions": {
+    "rootOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "aliasPrefix": {
+          "type": "string",
+          "minLength": 1,
+          "default": "@"
+        },
+        "aliasRoot": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Alias target relative to the project root. Defaults to srcRoot.",
+          "pattern": "^(?![/\\\\]|[A-Za-z]:)"
+        },
+        "layerDirs": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "app": {
+              "type": "string",
+              "minLength": 1,
+              "default": "app",
+              "pattern": "^(?![/\\\\]|[A-Za-z]:)"
+            },
+            "pages": {
+              "type": "string",
+              "minLength": 1,
+              "default": "pages",
+              "pattern": "^(?![/\\\\]|[A-Za-z]:)"
+            },
+            "modules": {
+              "type": "string",
+              "minLength": 1,
+              "default": "modules",
+              "pattern": "^(?![/\\\\]|[A-Za-z]:)"
+            },
+            "common": {
+              "type": "string",
+              "minLength": 1,
+              "default": "common",
+              "pattern": "^(?![/\\\\]|[A-Za-z]:)"
+            },
+            "global": {
+              "type": "string",
+              "minLength": 1,
+              "default": "global",
+              "pattern": "^(?![/\\\\]|[A-Za-z]:)"
+            }
+          },
+          "description": "Layer directories relative to srcRoot. Set global to globals when using that directory name."
+        },
+        "layerAliases": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "minLength": 1
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\]|[A-Za-z]:)"
+          },
+          "description": "Additional aliases with targets relative to the project root."
+        },
+        "ignore": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          ],
+          "description": "Glob patterns relative to the project root; passed to FEOD rules."
+        },
+        "transitModules": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true,
+          "default": [],
+          "description": "Modules with direct submodules instead of a nested modules directory."
+        },
+        "singleFileModules": {
+          "type": "boolean",
+          "default": false
+        },
+        "modulePages": {
+          "type": "boolean",
+          "default": false
+        },
+        "common": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "maxDepth": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 1
+            }
+          }
+        },
+        "levels": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "visibility"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "visibility": {
+                "enum": [
+                  "default",
+                  "transparent",
+                  "open"
+                ],
+                "type": "string"
+              },
+              "maxDepth": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "description": "Depth limits used by visibility-levels in the strict preset."
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\]|[A-Za-z]:)"
+          },
+          "uniqueItems": true,
+          "default": [],
+          "description": "Configured root paths whose public modules may be imported. Replaces the inherited list."
+        },
+        "layers": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "type": "string",
+            "minLength": 1
+          },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "imports"
+            ],
+            "properties": {
+              "dir": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?![/\\\\]|[A-Za-z]:)"
+              },
+              "imports": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "role": {
+                "enum": [
+                  "app",
+                  "pages",
+                  "modules",
+                  "common",
+                  "global"
+                ]
+              }
+            }
+          }
+        },
+        "submodules": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "parentImports": {
+              "enum": [
+                "public",
+                "implementation"
+              ],
+              "default": "public"
+            },
+            "childImportsParent": {
+              "enum": [
+                "public",
+                "implementation"
+              ],
+              "default": "implementation"
+            },
+            "visibility": {
+              "enum": [
+                "public",
+                "parent-only"
+              ],
+              "default": "public"
+            }
+          }
+        },
+        "imports": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "computed": {
+              "enum": [
+                "ignore",
+                "forbid"
+              ],
+              "default": "ignore"
+            },
+            "unresolved": {
+              "enum": [
+                "ignore",
+                "forbid"
+              ],
+              "default": "ignore"
+            }
+          }
+        },
+        "globals": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "allowedFiles": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "localImports": {
+              "enum": [
+                "allow",
+                "type-only",
+                "forbid"
+              ],
+              "default": "allow"
+            }
+          }
+        },
+        "modules": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "forbiddenNames": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[^/\\\\]+$"
+              },
+              "uniqueItems": true
+            },
+            "publicEntries": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?!\\.{1,2}$)[^/\\\\*?\\[\\]{}]+$"
+              }
+            },
+            "requirePublicEntry": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "inventory": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "uncovered": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "cycles": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "modules": {
+              "type": "boolean",
+              "default": false
+            },
+            "files": {
+              "type": "boolean",
+              "default": false
+            },
+            "types": {
+              "enum": [
+                "ignore",
+                "include"
+              ],
+              "default": "ignore",
+              "description": "include: module cycles also count type-only imports, except a module importing an ancestor."
+            }
+          }
+        },
+        "extra": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Opt-in policies that are not part of FEOD structure.",
+          "properties": {
+            "largeFiles": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Oversized-file registry: files over the extension threshold must be split or listed with a ceiling and a split plan; ceilings only go down.",
+              "properties": {
+                "thresholds": {
+                  "type": "object",
+                  "propertyNames": {
+                    "pattern": "^(default|\\.[^./\\\\]+)$"
+                  },
+                  "additionalProperties": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "files": {
+                  "type": "object",
+                  "propertyNames": {
+                    "minLength": 1
+                  },
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "ceiling",
+                      "plan"
+                    ],
+                    "properties": {
+                      "ceiling": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "plan": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "confine": {
+              "type": "array",
+              "uniqueItems": true,
+              "description": "Confine imports (globs) and string literals (regex sources) to files matching allowedIn, relative to the project root.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "imports": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "literals": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "allowedIn": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "allowTypeImports": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "message": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "targets": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "not": {
+    "required": [
+      "srcRoot",
+      "roots"
+    ]
+  }
+}

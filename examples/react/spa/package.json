@@ -1,0 +1,45 @@
+{
+  "name": "@open-feod/example-react-spa",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5175 --strictPort",
+    "build": "tsc --noEmit && vite build",
+    "type-check": "tsc --noEmit",
+    "preview": "vite preview --port 4175 --strictPort",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "lint:oxlint": "oxlint src --deny-warnings",
+    "test:architecture": "node scripts/check-architecture.mjs",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.4"
+  },
+  "devDependencies": {
+    "@o-feod/eslint-structure-plugin": "workspace:*",
+    "@o-feod/oxlint-structure-plugin": "workspace:*",
+    "@playwright/test": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "catalog:",
+    "eslint-plugin-playwright": "catalog:",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "oxlint": "1.86.0",
+    "sass-embedded": "catalog:",
+    "typescript": "catalog:typescript6",
+    "typescript-eslint": "8.59.4",
+    "vite": "catalog:"
+  },
+  "feod": {
+    "srcRoot": "src",
+    "layerDirs": {
+      "global": "globals"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+a {
+  color: #369d5c;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: #2c7f49;
+}
+
+:focus-visible {
+  outline: 3px solid #248b4a;
+  outline-offset: 2px;
+}

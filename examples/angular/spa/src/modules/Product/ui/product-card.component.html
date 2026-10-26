@@ -1,0 +1,15 @@
+<article class="product-card">
+  <img [src]="product().image" [alt]="product().title" class="product-card__image">
+  <div class="product-card__content">
+    <h2 class="product-card__title">{{ product().title }}</h2>
+    <p class="product-card__description">{{ product().description }}</p>
+    <div class="product-card__footer">
+      <span class="product-card__price">{{ product().price }} ₽</span>
+      <app-main-button
+        [variant]="inCart() ? 'secondary' : 'primary'"
+        [disabled]="inCart()"
+        (buttonClick)="addToCart()"
+      >{{ inCart() ? 'В корзине' : 'В корзину' }}</app-main-button>
+    </div>
+  </div>
+</article>

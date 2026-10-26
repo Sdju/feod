@@ -1,0 +1,38 @@
+name: Nuxt example
+
+on:
+  pull_request:
+    paths:
+      - 'examples/vue/nuxt/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/test-nuxt-example.yml'
+  push:
+    paths:
+      - 'examples/vue/nuxt/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/test-nuxt-example.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @o-feod/eslint-structure-plugin... build
+      - run: pnpm --filter @o-feod/oxlint-structure-plugin... build
+      - run: pnpm --filter @open-feod/example-nuxt build
+      - run: pnpm --filter @open-feod/example-nuxt type-check
+      - run: pnpm --filter @open-feod/example-nuxt lint
+      - run: pnpm --filter @open-feod/example-nuxt lint:oxlint
+      - run: pnpm --filter @open-feod/example-nuxt test:architecture
+      - run: pnpm --filter @open-feod/example-nuxt exec playwright install --with-deps chromium
+      - run: pnpm --filter @open-feod/example-nuxt test:e2e

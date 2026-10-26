@@ -1,0 +1,80 @@
+.user-profile {
+  padding: 32px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 28px;
+  }
+
+  &__avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+  }
+}
+
+.form-group {
+  margin-bottom: 20px;
+
+  &__label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  &__input {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+
+    &:focus {
+      outline: 2px solid #4caf50;
+      outline-offset: 1px;
+    }
+  }
+
+  &__textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+}
+
+.info-group {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 18px;
+
+  &__label { color: #666; font-size: 14px; }
+  &__value { overflow-wrap: anywhere; font-weight: 500; }
+}
+
+@media (max-width: 700px) {
+  .user-profile {
+    padding: 20px;
+
+    &__header { gap: 16px; }
+    &__title { font-size: 28px; }
+  }
+}

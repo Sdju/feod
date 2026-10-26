@@ -1,0 +1,19 @@
+{
+  "name": "@open-feod/docs",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "dependencies": {
+    "@vueuse/core": "catalog:",
+    "vitepress": "catalog:"
+  },
+  "devDependencies": {
+    "@iconify-json/devicon": "catalog:",
+    "@iconify-json/lucide": "catalog:",
+    "unplugin-icons": "catalog:"
+  }
+}

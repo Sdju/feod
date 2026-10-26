@@ -1,0 +1,14 @@
+services:
+  feod-site:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: feod-site:latest
+    container_name: feod-site
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro

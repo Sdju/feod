@@ -1,0 +1,8 @@
+<section class="product-list">
+  <h1 class="product-list__title">Каталог продуктов</h1>
+  <div class="product-list__grid">
+    @for (product of products; track product.id) {
+      <app-product-card [product]="product" />
+    }
+  </div>
+</section>

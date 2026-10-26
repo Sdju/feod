@@ -1,0 +1,54 @@
+name: Test Next.js example
+
+on:
+  push:
+    paths:
+      - "examples/react/next/**"
+      - "packages/eslint/**"
+      - "packages/oxlint/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/test-next-example.yml"
+  pull_request:
+    paths:
+      - "examples/react/next/**"
+      - "packages/eslint/**"
+      - "packages/oxlint/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/test-next-example.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build plugins and Next.js application
+        run: pnpm --filter @open-feod/example-next... build
+      - name: Lint with ESLint
+        run: pnpm --filter @open-feod/example-next lint
+      - name: Lint with Oxlint
+        run: pnpm --filter @open-feod/example-next lint:oxlint
+      - name: Verify module boundaries
+        run: pnpm --filter @open-feod/example-next test:architecture
+      - name: Install Chromium
+        run: pnpm --filter @open-feod/example-next exec playwright install --with-deps chromium
+      - name: Verify SSR, shop, profile, and mobile layout
+        run: CI=true pnpm --filter @open-feod/example-next test:e2e --project=chromium
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: next-example-playwright-results
+          path: |
+            examples/react/next/playwright-report/
+            examples/react/next/test-results/
+          retention-days: 7

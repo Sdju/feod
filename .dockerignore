@@ -1,0 +1,10 @@
+**/node_modules
+**/.vitepress/dist
+**/.vitepress/cache
+.git
+.github
+examples
+packages
+**/test
+**/*.spec.ts
+**/*.spec.js

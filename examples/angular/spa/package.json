@@ -1,0 +1,53 @@
+{
+  "name": "@open-feod/example-angular-spa",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "ng serve --host 127.0.0.1 --port 5179",
+    "build": "ng build --configuration production",
+    "preview": "vite preview --outDir dist/example-angular-spa/browser --host 127.0.0.1 --port 4179 --strictPort",
+    "type-check": "ng build --configuration development",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "lint:oxlint": "oxlint src --deny-warnings",
+    "test:architecture": "node scripts/check-architecture.mjs",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/forms": "^22.0.0",
+    "@angular/platform-browser": "^22.0.0",
+    "@angular/router": "^22.0.0",
+    "rxjs": "^7.4.0",
+    "tslib": "^2.8.1",
+    "zone.js": "^0.16.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.0.0",
+    "@angular/cli": "^22.0.0",
+    "@angular/compiler-cli": "^22.0.0",
+    "@angular-eslint/eslint-plugin": "^22.0.0",
+    "@angular-eslint/eslint-plugin-template": "^22.0.0",
+    "@angular-eslint/template-parser": "^22.0.0",
+    "@o-feod/eslint-structure-plugin": "workspace:*",
+    "@o-feod/oxlint-structure-plugin": "workspace:*",
+    "@playwright/test": "catalog:",
+    "@types/node": "catalog:",
+    "angular-eslint": "^22.0.0",
+    "eslint": "catalog:",
+    "eslint-plugin-playwright": "catalog:",
+    "oxlint": "1.86.0",
+    "sass-embedded": "catalog:",
+    "typescript": "catalog:typescript6",
+    "typescript-eslint": "8.59.4",
+    "vite": "catalog:"
+  },
+  "feod": {
+    "srcRoot": "src",
+    "layerDirs": {
+      "global": "globals"
+    }
+  }
+}

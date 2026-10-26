@@ -1,0 +1,14 @@
+<article class="cart-item">
+  <img class="cart-item__image" [src]="item().image" [alt]="item().title">
+  <div class="cart-item__content">
+    <h2 class="cart-item__title">{{ item().title }}</h2>
+    <p class="cart-item__price">{{ item().price }} ₽ за штуку</p>
+  </div>
+  <div class="cart-item__quantity" aria-label="Количество товара">
+    <app-main-button variant="secondary" size="small" ariaLabel="Уменьшить количество" (buttonClick)="quantityChange.emit(item().quantity - 1)">−</app-main-button>
+    <span class="cart-item__quantity-value" aria-live="polite">{{ item().quantity }}</span>
+    <app-main-button variant="secondary" size="small" ariaLabel="Увеличить количество" (buttonClick)="quantityChange.emit(item().quantity + 1)">+</app-main-button>
+  </div>
+  <strong class="cart-item__total">{{ item().price * item().quantity }} ₽</strong>
+  <app-main-button variant="danger" size="small" (buttonClick)="remove.emit()">Удалить</app-main-button>
+</article>

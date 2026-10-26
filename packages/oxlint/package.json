@@ -1,0 +1,69 @@
+{
+  "name": "@o-feod/oxlint-structure-plugin",
+  "version": "0.1.6",
+  "description": "FEOD architecture rules and presets for Oxlint",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.mjs",
+  "types": "dist/app/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/app/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./configs": {
+      "types": "./dist/app/configs.d.ts",
+      "import": "./dist/configs.mjs"
+    },
+    "./presets": {
+      "types": "./dist/app/presets.d.ts",
+      "import": "./dist/presets.mjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsdown --config-loader unrun && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "test": "pnpm lint && vitest run",
+    "prepublishOnly": "pnpm lint",
+    "lint": "pnpm --filter @o-feod/oxlint-structure-plugin... build && oxlint --config oxlint.config.ts src --deny-warnings"
+  },
+  "dependencies": {
+    "@o-feod/eslint-structure-plugin": "workspace:^"
+  },
+  "peerDependencies": {
+    "oxlint": "^1.86.0"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "oxlint": "1.86.0",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "oxlint",
+    "oxlint-plugin",
+    "feod",
+    "architecture"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sdju/feod.git",
+    "directory": "packages/oxlint"
+  },
+  "homepage": "https://github.com/Sdju/feod#readme",
+  "bugs": {
+    "url": "https://github.com/Sdju/feod/issues"
+  }
+}

@@ -1,0 +1,64 @@
+name: Test Svelte examples
+
+on:
+  push:
+    paths:
+      - 'examples/svelte/**'
+      - 'packages/eslint/**'
+      - 'packages/oxlint/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/test-svelte-examples.yml'
+  pull_request:
+    paths:
+      - 'examples/svelte/**'
+      - 'packages/eslint/**'
+      - 'packages/oxlint/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/test-svelte-examples.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build Svelte SPA and workspace plugins
+        run: pnpm --filter @open-feod/example-svelte-spa... build
+      - name: Build SvelteKit and workspace plugins
+        run: pnpm --filter @open-feod/example-sveltekit... build
+      - name: Lint Svelte SPA
+        run: |
+          pnpm --filter @open-feod/example-svelte-spa lint
+          pnpm --filter @open-feod/example-svelte-spa lint:oxlint
+          pnpm --filter @open-feod/example-svelte-spa test:architecture
+      - name: Lint SvelteKit
+        run: |
+          pnpm --filter @open-feod/example-sveltekit lint
+          pnpm --filter @open-feod/example-sveltekit lint:oxlint
+          pnpm --filter @open-feod/example-sveltekit test:architecture
+      - name: Install Chromium
+        run: pnpm --filter @open-feod/example-svelte-spa exec playwright install --with-deps chromium
+      - name: Test Svelte SPA in Chromium
+        run: CI=true pnpm --filter @open-feod/example-svelte-spa test:e2e --project=chromium
+      - name: Test SvelteKit in Chromium
+        run: CI=true pnpm --filter @open-feod/example-sveltekit test:e2e --project=chromium
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: svelte-examples-playwright-results
+          path: |
+            examples/svelte/spa/playwright-report/
+            examples/svelte/spa/test-results/
+            examples/svelte/kit/playwright-report/
+            examples/svelte/kit/test-results/
+          retention-days: 7

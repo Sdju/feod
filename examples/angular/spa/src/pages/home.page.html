@@ -1,0 +1,22 @@
+<section class="home-page">
+  <div class="hero">
+    <div class="hero__content">
+      <h1 class="hero__title">Добро пожаловать в FEOD Shop</h1>
+      <p class="hero__description">Ваш надежный магазин с широким ассортиментом товаров</p>
+      <app-main-button size="large" link="/catalog">Перейти в каталог</app-main-button>
+    </div>
+    <img [src]="placeholder" alt="Hero image" class="hero__image">
+  </div>
+  <section class="features" aria-labelledby="features-title">
+    <h2 id="features-title" class="features__title">Наши преимущества</h2>
+    <div class="features__grid">
+      @for (feature of features; track feature.title) {
+        <article class="feature-card">
+          <img [src]="placeholder" [alt]="feature.title" class="feature-card__image">
+          <h3 class="feature-card__title">{{ feature.title }}</h3>
+          <p class="feature-card__description">{{ feature.description }}</p>
+        </article>
+      }
+    </div>
+  </section>
+</section>

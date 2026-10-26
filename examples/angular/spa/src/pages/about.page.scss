@@ -1,0 +1,35 @@
+.about-page__title {
+  margin-bottom: 12px;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.about-page__lead {
+  margin-bottom: 32px;
+  color: #666;
+  font-size: 18px;
+}
+
+.about-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 24px;
+}
+
+.about-card {
+  padding: 20px;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+}
+
+.about-card__title {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+
+.about-card__description {
+  margin: 0;
+  color: #666;
+  line-height: 1.5;
+}

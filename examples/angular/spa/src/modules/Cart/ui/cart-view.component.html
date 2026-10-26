@@ -1,0 +1,30 @@
+<section class="cart-view">
+  <h1 class="cart-view__title">Корзина</h1>
+  @if (cart.items().length > 0) {
+    <div class="cart-view__content">
+      <ul class="cart-items">
+        @for (item of cart.items(); track item.id) {
+          <li>
+            <app-cart-item
+              [item]="item"
+              (quantityChange)="updateQuantity(item.id, $event)"
+              (remove)="removeItem(item.id)"
+            />
+          </li>
+        }
+      </ul>
+      <div class="cart-summary">
+        <div class="cart-summary__total">
+          <span>Итого:</span>
+          <strong>{{ cart.totalAmount() }} ₽</strong>
+        </div>
+        <app-main-button size="large" (buttonClick)="clearCart()">Оформить заказ</app-main-button>
+      </div>
+    </div>
+  } @else {
+    <div class="cart-view__empty">
+      <p>Ваша корзина пуста</p>
+      <a routerLink="/catalog">Перейти в каталог</a>
+    </div>
+  }
+</section>

@@ -1,0 +1,49 @@
+name: Test lint plugins
+
+on:
+  push:
+    paths:
+      - 'packages/eslint/**'
+      - 'packages/oxlint/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/test-lint-plugins.yml'
+      - '.github/workflows/publish-npm-packages.yml'
+      - 'scripts/publish-npm.mjs'
+      - 'scripts/sync-feod-schema.mjs'
+      - 'docs/public/feod*.schema.json'
+      - 'docs/tools/feod-config.md'
+      - 'docs/linting/**'
+  pull_request:
+    paths:
+      - 'packages/eslint/**'
+      - 'packages/oxlint/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/test-lint-plugins.yml'
+      - '.github/workflows/publish-npm-packages.yml'
+      - 'scripts/publish-npm.mjs'
+      - 'scripts/sync-feod-schema.mjs'
+      - 'docs/public/feod*.schema.json'
+      - 'docs/tools/feod-config.md'
+      - 'docs/linting/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: node scripts/sync-feod-schema.mjs --check
+      - name: Self-lint and test Oxlint
+        run: pnpm --filter @o-feod/oxlint-structure-plugin test
+      - name: Self-lint and test ESLint
+        run: pnpm --filter @o-feod/eslint-structure-plugin test

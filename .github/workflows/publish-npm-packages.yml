@@ -1,0 +1,65 @@
+name: Publish npm packages (trusted publishing)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Validate package archives without publishing
+        required: true
+        default: true
+        type: boolean
+      package:
+        description: Package to publish (both publishes ESLint before Oxlint)
+        required: true
+        default: both
+        type: choice
+        options:
+          - both
+          - eslint
+          - oxlint
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-npm-packages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+
+      - name: Setup npm with trusted publishing support
+        run: npm install --global npm@11
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build, self-lint and test Oxlint
+        run: pnpm --filter @o-feod/oxlint-structure-plugin test
+
+      - name: Self-lint and test ESLint
+        run: pnpm --filter @o-feod/eslint-structure-plugin test
+
+      - name: Pack and publish packages
+        env:
+          RELEASE_PACKAGE: ${{ inputs.package }}
+          RELEASE_DRY_RUN: ${{ inputs.dry_run }}
+          NPM_CONFIG_PROVENANCE: ${{ !github.event.repository.private }}
+        run: node scripts/publish-npm.mjs

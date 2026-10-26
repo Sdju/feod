@@ -1,0 +1,50 @@
+.app-footer {
+  background: #333;
+  color: #fff;
+  padding: 40px 0 20px;
+
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: 32px;
+    margin-bottom: 36px;
+  }
+
+  &__title {
+    margin: 0 0 12px;
+    font-size: 18px;
+  }
+
+  &__text {
+    max-width: 540px;
+    line-height: 1.5;
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item + &__item {
+    margin-top: 8px;
+  }
+
+  &__bottom {
+    border-top: 1px solid rgb(255 255 255 / 10%);
+    padding-top: 20px;
+  }
+
+  &__copyright {
+    margin: 0;
+    color: rgb(255 255 255 / 70%);
+    text-align: center;
+    font-size: 14px;
+  }
+}

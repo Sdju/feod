@@ -1,0 +1,16 @@
+<ng-template #content><ng-content /></ng-template>
+@if (link(); as path) {
+  <a [routerLink]="path" [class]="buttonClasses()" [attr.aria-label]="ariaLabel()">
+    <ng-container [ngTemplateOutlet]="content" />
+  </a>
+} @else {
+  <button
+    [class]="buttonClasses()"
+    [disabled]="disabled()"
+    [type]="type()"
+    [attr.aria-label]="ariaLabel()"
+    (click)="buttonClick.emit($event)"
+  >
+    <ng-container [ngTemplateOutlet]="content" />
+  </button>
+}

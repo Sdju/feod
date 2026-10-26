@@ -1,0 +1,66 @@
+{
+  "name": "@open-feod/example-nuxt",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev --port 5180 --host 127.0.0.1",
+    "build": "nuxt build",
+    "start": "PORT=4180 HOST=127.0.0.1 node .output/server/index.mjs",
+    "type-check": "nuxt typecheck",
+    "lint": "eslint . --max-warnings 0",
+    "lint:oxlint": "oxlint src --deny-warnings",
+    "test:architecture": "node scripts/check-architecture.mjs",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@pinia/nuxt": "1.0.2",
+    "@vue/devtools-api": "^8.2.1",
+    "nuxt": "4.5.2",
+    "pinia": "catalog:",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^8.0.2",
+    "@babel/plugin-syntax-jsx": "^8.0.1",
+    "@babel/plugin-syntax-typescript": "^8.0.3",
+    "@o-feod/eslint-structure-plugin": "workspace:*",
+    "@o-feod/oxlint-structure-plugin": "workspace:*",
+    "@playwright/test": "catalog:",
+    "@types/node": "catalog:",
+    "@vue/eslint-config-typescript": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-playwright": "catalog:",
+    "eslint-plugin-vue": "catalog:",
+    "oxlint": "1.86.0",
+    "sass-embedded": "catalog:",
+    "typescript": "catalog:typescript6",
+    "vue-tsc": "catalog:"
+  },
+  "feod": {
+    "srcRoot": "src",
+    "layerDirs": {
+      "global": "globals"
+    },
+    "modules": {
+      "publicEntries": [
+        "index.ts",
+        "server.ts"
+      ]
+    },
+    "extra": {
+      "confine": [
+        {
+          "name": "module-server-api",
+          "targets": [
+            "src/modules/*/server.ts"
+          ],
+          "allowedIn": [
+            "src/app/server/**"
+          ],
+          "message": "Серверный API модуля вызывается только из обработчиков Nitro в src/app/server; страницы получают данные через useFetch."
+        }
+      ]
+    }
+  }
+}

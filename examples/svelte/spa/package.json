@@ -1,0 +1,41 @@
+{
+  "name": "@open-feod/example-svelte-spa",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5176 --strictPort",
+    "build": "svelte-check && vite build",
+    "preview": "vite preview --port 4176 --strictPort",
+    "typecheck": "svelte-check",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "lint:oxlint": "oxlint src --deny-warnings",
+    "test:architecture": "node scripts/check-architecture.mjs",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "svelte": "^5.46.4"
+  },
+  "devDependencies": {
+    "@o-feod/eslint-structure-plugin": "workspace:*",
+    "@o-feod/oxlint-structure-plugin": "workspace:*",
+    "@playwright/test": "catalog:",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-playwright": "catalog:",
+    "eslint-plugin-svelte": "^3.0.0",
+    "oxlint": "1.86.0",
+    "svelte-check": "^4.0.0",
+    "typescript": "catalog:typescript6",
+    "vite": "catalog:",
+    "typescript-eslint": "8.59.4"
+  },
+  "feod": {
+    "srcRoot": "src",
+    "layerDirs": {
+      "global": "globals"
+    }
+  }
+}

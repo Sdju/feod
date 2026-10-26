@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://feod.dev/feod.package.schema.json",
+  "title": "package.json with FEOD configuration",
+  "type": "object",
+  "required": [
+    "feod"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "feod": {
+      "$ref": "https://feod.dev/feod.schema.json"
+    }
+  },
+  "additionalProperties": true
+}

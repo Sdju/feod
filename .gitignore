@@ -1,0 +1,21 @@
+node_modules
+*/.vitepress/cache
+*/.vitepress/dist
+**/.vitest-cache/
+**/dist/
+
+# pnpm
+.pnpm-store
+.pnpm-debug.log
+.npm-cache
+
+# Игнорировать локальные lock файлы в workspace пакетах
+**/pnpm-lock.yaml
+# Но сохранять корневой lock файл
+!pnpm-lock.yaml
+
+# npm lock файлы (используем только pnpm)
+package-lock.json
+**/package-lock.json
+# Projector
+.projector-trash/

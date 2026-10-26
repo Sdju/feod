@@ -1,0 +1,56 @@
+name: Test Angular example
+
+on:
+  push:
+    paths:
+      - 'examples/angular/spa/**'
+      - 'packages/eslint/**'
+      - 'packages/oxlint/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/test-angular-example.yml'
+  pull_request:
+    paths:
+      - 'examples/angular/spa/**'
+      - 'packages/eslint/**'
+      - 'packages/oxlint/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/test-angular-example.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.22.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build workspace plugins and Angular application
+        run: pnpm --filter @open-feod/example-angular-spa... build
+      - name: Lint TypeScript and Angular templates with ESLint
+        run: pnpm --filter @open-feod/example-angular-spa lint
+      - name: Lint FEOD imports with Oxlint
+        run: pnpm --filter @open-feod/example-angular-spa lint:oxlint
+      - name: Verify public module boundaries
+        run: pnpm --filter @open-feod/example-angular-spa test:architecture
+      - name: Install Chromium
+        run: pnpm --filter @open-feod/example-angular-spa exec playwright install --with-deps chromium
+      - name: Verify cart, profile, mobile layout, and routing in Chromium
+        run: CI=true pnpm --filter @open-feod/example-angular-spa test:e2e --project=chromium
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: angular-example-playwright-results
+          path: |
+            examples/angular/spa/playwright-report/
+            examples/angular/spa/test-results/
+          retention-days: 7

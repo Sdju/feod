@@ -1,0 +1,21 @@
+{
+  "name": "open-feod",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "pnpm@10.22.0",
+  "scripts": {
+    "dev": "pnpm --filter docs dev",
+    "build": "pnpm --filter docs build",
+    "preview": "pnpm --filter docs preview",
+    "dev:example": "pnpm --filter @open-feod/example-vue-spa dev",
+    "build:example": "pnpm --filter @open-feod/example-vue-spa build",
+    "test:example": "pnpm --filter @open-feod/example-vue-spa test:unit",
+    "test:e2e:example": "pnpm --filter @open-feod/example-vue-spa test:e2e",
+    "lint:example": "pnpm --filter @open-feod/example-vue-spa lint",
+    "install:all": "pnpm install",
+    "clean": "echo 'Удалите node_modules вручную или используйте: pnpm store prune'"
+  },
+  "devDependencies": {
+    "vitest": "catalog:"
+  }
+}

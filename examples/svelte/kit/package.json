@@ -1,0 +1,55 @@
+{
+  "name": "@open-feod/example-sveltekit",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5177 --strictPort",
+    "build": "svelte-kit sync && svelte-check && vite build",
+    "preview": "PORT=4177 HOST=127.0.0.1 node build/index.js",
+    "typecheck": "svelte-kit sync && svelte-check",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "lint:oxlint": "oxlint src --deny-warnings",
+    "test:architecture": "node scripts/check-architecture.mjs",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@sveltejs/kit": "^2.0.0",
+    "svelte": "^5.46.4"
+  },
+  "devDependencies": {
+    "@o-feod/eslint-structure-plugin": "workspace:*",
+    "@o-feod/oxlint-structure-plugin": "workspace:*",
+    "@playwright/test": "catalog:",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-playwright": "catalog:",
+    "eslint-plugin-svelte": "^3.0.0",
+    "oxlint": "1.86.0",
+    "svelte-check": "^4.0.0",
+    "typescript": "catalog:typescript6",
+    "vite": "catalog:",
+    "@sveltejs/adapter-node": "^5.2.0",
+    "typescript-eslint": "8.59.4"
+  },
+  "feod": {
+    "srcRoot": "src",
+    "aliasPrefix": "@",
+    "aliasRoot": "src/lib",
+    "layerDirs": {
+      "app": "routes",
+      "pages": "lib/pages",
+      "modules": "lib/modules",
+      "common": "lib/common",
+      "global": "lib/globals"
+    },
+    "modules": {
+      "publicEntries": [
+        "index.ts",
+        "index.server.ts"
+      ]
+    }
+  }
+}

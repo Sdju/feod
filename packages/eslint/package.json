@@ -1,0 +1,71 @@
+{
+  "name": "@o-feod/eslint-structure-plugin",
+  "version": "0.1.6",
+  "private": false,
+  "main": "dist/index.mjs",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "pnpm lint && vitest run",
+    "build": "tsdown --config-loader unrun && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "prepublishOnly": "pnpm lint",
+    "lint": "pnpm build && eslint src --max-warnings=0"
+  },
+  "devDependencies": {
+    "@types/estree": "catalog:",
+    "@types/node": "catalog:",
+    "@types/picomatch": "catalog:",
+    "@typescript-eslint/parser": "8.71.0",
+    "eslint": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:typescript6",
+    "vitest": "catalog:"
+  },
+  "types": "dist/app/index.d.ts",
+  "dependencies": {
+    "@types/eslint": "catalog:",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "eslint-import-resolver-node": "catalog:",
+    "eslint-module-utils": "catalog:",
+    "picomatch": "catalog:"
+  },
+  "description": "FEOD ESLint structure plugin",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/app/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./presets": {
+      "types": "./dist/app/presets.d.ts",
+      "import": "./dist/presets.mjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "eslint",
+    "eslint-plugin",
+    "feod",
+    "architecture"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sdju/feod.git",
+    "directory": "packages/eslint"
+  },
+  "homepage": "https://github.com/Sdju/feod#readme",
+  "bugs": {
+    "url": "https://github.com/Sdju/feod/issues"
+  }
+}

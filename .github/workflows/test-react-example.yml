@@ -1,0 +1,54 @@
+name: Test React example
+
+on:
+  push:
+    paths:
+      - "examples/react/spa/**"
+      - "packages/eslint/**"
+      - "packages/oxlint/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/test-react-example.yml"
+  pull_request:
+    paths:
+      - "examples/react/spa/**"
+      - "packages/eslint/**"
+      - "packages/oxlint/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/test-react-example.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build plugins and React application
+        run: pnpm --filter @open-feod/example-react-spa... build
+      - name: Lint with ESLint
+        run: pnpm --filter @open-feod/example-react-spa lint
+      - name: Lint with Oxlint
+        run: pnpm --filter @open-feod/example-react-spa lint:oxlint
+      - name: Verify module boundaries
+        run: pnpm --filter @open-feod/example-react-spa test:architecture
+      - name: Install Chromium
+        run: pnpm --filter @open-feod/example-react-spa exec playwright install --with-deps chromium
+      - name: Verify shop, profile, and mobile layout
+        run: pnpm --filter @open-feod/example-react-spa test:e2e --project=chromium
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: react-example-playwright-results
+          path: |
+            examples/react/spa/playwright-report/
+            examples/react/spa/test-results/
+          retention-days: 7

@@ -1,0 +1,6 @@
+<a class="user-widget" routerLink="/profile" aria-label="Открыть профиль">
+  <span class="user-widget__avatar">
+    <img [src]="user.profile().avatar" [alt]="user.profile().name">
+  </span>
+  <span class="user-widget__name">{{ user.profile().name }}</span>
+</a>

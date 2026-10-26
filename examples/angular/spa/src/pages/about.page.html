@@ -1,0 +1,12 @@
+<section class="about-page">
+  <h1 class="about-page__title">О FEOD Shop</h1>
+  <p class="about-page__lead">Этот проект демонстрирует структуру FEOD на примере простого интернет-магазина.</p>
+  <div class="about-page__grid">
+    @for (item of principles; track item.title) {
+      <article class="about-card">
+        <h2 class="about-card__title">{{ item.title }}</h2>
+        <p class="about-card__description">{{ item.description }}</p>
+      </article>
+    }
+  </div>
+</section>

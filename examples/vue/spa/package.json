@@ -1,0 +1,55 @@
+{
+  "name": "@open-feod/example-vue-spa",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "test:unit": "vitest",
+    "test:e2e": "playwright test",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "lint:oxlint": "oxlint src --deny-warnings",
+    "test:architecture": "node scripts/check-architecture.mjs"
+  },
+  "dependencies": {
+    "pinia": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  },
+  "devDependencies": {
+    "@o-feod/eslint-structure-plugin": "workspace:*",
+    "@o-feod/oxlint-structure-plugin": "workspace:*",
+    "@playwright/test": "catalog:",
+    "@tsconfig/node22": "catalog:",
+    "@types/jsdom": "catalog:",
+    "@types/node": "catalog:",
+    "@vitejs/plugin-vue": "catalog:",
+    "@vitest/eslint-plugin": "catalog:",
+    "@vue/eslint-config-typescript": "catalog:",
+    "@vue/test-utils": "catalog:",
+    "@vue/tsconfig": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-playwright": "catalog:",
+    "eslint-plugin-vue": "catalog:",
+    "jsdom": "catalog:",
+    "npm-run-all2": "catalog:",
+    "oxlint": "1.86.0",
+    "sass-embedded": "catalog:",
+    "typescript": "catalog:typescript6",
+    "vite": "catalog:",
+    "vite-plugin-vue-devtools": "catalog:",
+    "vitest": "catalog:",
+    "vue-tsc": "catalog:"
+  },
+  "feod": {
+    "srcRoot": "src",
+    "layerDirs": {
+      "global": "globals"
+    }
+  }
+}

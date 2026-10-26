@@ -1,0 +1,7 @@
+<a class="cart-widget" routerLink="/cart" aria-label="Открыть корзину">
+  <span class="cart-widget__icon" aria-hidden="true">🛒</span>
+  @if (cart.itemsCount() > 0) {
+    <span class="cart-widget__counter">{{ cart.itemsCount() }}</span>
+  }
+  <span class="cart-widget__total">{{ cart.totalAmount() }} ₽</span>
+</a>

@@ -1,0 +1,36 @@
+.cart-view__title {
+  margin-bottom: 32px;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.cart-view__empty {
+  padding: 48px 24px;
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+}
+
+.cart-items {
+  margin: 0 0 32px;
+  padding: 0;
+  list-style: none;
+}
+
+.cart-summary {
+  padding: 24px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+
+  &__total {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 500px) {
+  .cart-summary { padding: 18px; }
+}
