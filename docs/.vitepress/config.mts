@@ -10,7 +10,6 @@ const srcDir = path.resolve(__dirname, '..')
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Open FEOD",
-  srcExclude: ['DOC_EXAMPLES_AUDIT.md'],
   description: "Универсальная Frontend-архитектура",
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/feod-o-logo.svg' }]
