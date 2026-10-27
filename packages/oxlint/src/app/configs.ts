@@ -1,10 +1,18 @@
-import { configs, createRuleConfig, loadFeodConfig, type ConfigOptions, type FeodConfig } from "@o-feod/eslint-structure-plugin";
+import {
+  configs,
+  createRuleConfig,
+  loadFeodConfig,
+  type ConfigOptions,
+  type FeodConfig,
+} from "@o-feod/eslint-structure-plugin";
 import type { OxlintConfig } from "oxlint";
 
-const jsPlugins = [{
-  name: "feod-structure",
-  specifier: "@o-feod/oxlint-structure-plugin",
-}];
+const jsPlugins = [
+  {
+    name: "feod-structure",
+    specifier: "@o-feod/oxlint-structure-plugin",
+  },
+];
 
 export const recommended = {
   jsPlugins,

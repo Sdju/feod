@@ -40,27 +40,17 @@ function normalizeFilename(filename: string, rootDir: string) {
   return path.resolve(rootDir, filename);
 }
 
-function getPrivateModuleInfo(
-  relativePath: string,
-  pagesDir: string
-): PrivateModuleInfo | null {
+function getPrivateModuleInfo(relativePath: string, pagesDir: string): PrivateModuleInfo | null {
   if (!relativePath.startsWith(`${pagesDir}/`)) return null;
   const rest = relativePath.slice(pagesDir.length + 1);
   if (!rest) return null;
   const parts = rest.split("/");
-  const privateIndex = parts.findIndex(
-    (part) => part.startsWith("_") && part.length > 1
-  );
+  const privateIndex = parts.findIndex(part => part.startsWith("_") && part.length > 1);
   if (privateIndex === -1) return null;
   const privateName = parts[privateIndex].slice(1);
   if (!privateName) return null;
-  const privateRoot = `${pagesDir}/${parts
-    .slice(0, privateIndex + 1)
-    .join("/")}`;
-  const scopeRoot =
-    privateIndex === 0
-      ? pagesDir
-      : `${pagesDir}/${parts.slice(0, privateIndex).join("/")}`;
+  const privateRoot = `${pagesDir}/${parts.slice(0, privateIndex + 1).join("/")}`;
+  const scopeRoot = privateIndex === 0 ? pagesDir : `${pagesDir}/${parts.slice(0, privateIndex).join("/")}`;
   return {
     privateRoot,
     scopeRoot,
@@ -69,16 +59,9 @@ function getPrivateModuleInfo(
   };
 }
 
-function isAllowedPrivateImport(
-  importerRelative: string,
-  pagesDir: string,
-  info: PrivateModuleInfo
-) {
+function isAllowedPrivateImport(importerRelative: string, pagesDir: string, info: PrivateModuleInfo) {
   if (!importerRelative.startsWith(`${pagesDir}/`)) return false;
-  if (
-    importerRelative === info.privateRoot ||
-    importerRelative.startsWith(`${info.privateRoot}/`)
-  ) {
+  if (importerRelative === info.privateRoot || importerRelative.startsWith(`${info.privateRoot}/`)) {
     return true;
   }
 
@@ -86,10 +69,7 @@ function isAllowedPrivateImport(
     const rest = importerRelative.slice(pagesDir.length + 1);
     if (!rest || rest.includes("/")) return false;
     const parsed = path.posix.parse(rest);
-    return (
-      parsed.name === info.privateName ||
-      parsed.name.startsWith(`${info.privateName}.`)
-    );
+    return parsed.name === info.privateName || parsed.name.startsWith(`${info.privateName}.`);
   }
 
   const scopePrefix = `${info.scopeRoot}/`;
@@ -110,10 +90,7 @@ const rule: Rule.RuleModule = {
           aliasPrefix: { type: "string" },
           aliasRoot: { type: "string" },
           ignore: {
-            oneOf: [
-              { type: "string" },
-              { type: "array", items: { type: "string" } },
-            ],
+            oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
           },
           srcRoot: { type: "string" },
           layerDirs: {
@@ -132,8 +109,7 @@ const rule: Rule.RuleModule = {
       },
     ],
     messages: {
-      privateModuleOutOfScope:
-        "FEOD: private page module can only be imported by its page scope.",
+      privateModuleOutOfScope: "FEOD: private page module can only be imported by its page scope.",
     },
   },
   create(context) {
@@ -151,9 +127,7 @@ const rule: Rule.RuleModule = {
       return {};
     }
 
-    const privateCache = createPathMemoizer((relativePath) =>
-      getPrivateModuleInfo(relativePath, layerDirs.pages)
-    );
+    const privateCache = createPathMemoizer(relativePath => getPrivateModuleInfo(relativePath, layerDirs.pages));
 
     function validateImport(node: unknown, sourceValue: unknown) {
       if (!filename) return;

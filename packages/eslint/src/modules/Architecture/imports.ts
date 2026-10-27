@@ -1,11 +1,10 @@
 import type { Rule } from "eslint";
 
-export type ImportPolicy = {
-  computed?: "ignore" | "forbid";
-  unresolved?: "ignore" | "forbid";
-};
+import type { ImportPolicy } from "@o-feod/config";
+export type { ImportPolicy };
 export const importPolicySchema = {
-  type: "object", additionalProperties: false,
+  type: "object",
+  additionalProperties: false,
   properties: {
     computed: { enum: ["ignore", "forbid"], default: "ignore" },
     unresolved: { enum: ["ignore", "forbid"], default: "ignore" },
@@ -74,10 +73,17 @@ export function importListeners(
       const url = source.object;
       const args = url?.arguments;
       const base = args?.[1];
-      if (url?.type === "NewExpression" && url.callee?.type === "Identifier" &&
-          url.callee.name === "URL" && unshadowed(url, "URL") && args?.length === 2 &&
-          member(base, "url") && base?.object?.type === "MetaProperty" &&
-          base.object.meta?.name === "import" && base.object.property?.name === "meta") {
+      if (
+        url?.type === "NewExpression" &&
+        url.callee?.type === "Identifier" &&
+        url.callee.name === "URL" &&
+        unshadowed(url, "URL") &&
+        args?.length === 2 &&
+        member(base, "url") &&
+        base?.object?.type === "MetaProperty" &&
+        base.object.meta?.name === "import" &&
+        base.object.property?.name === "meta"
+      ) {
         const value = staticString(args[0]);
         if (value?.startsWith("./") || value?.startsWith("../")) return args[0];
       }
@@ -93,8 +99,9 @@ export function importListeners(
   const declaration = (node: unknown) => {
     const declaration = node as ImportNode;
     const kind = declaration.type === "ImportDeclaration" ? "importKind" : "exportKind";
-    const typeOnly = declaration[kind] === "type" || Boolean(declaration.specifiers?.length &&
-      declaration.specifiers.every(specifier => specifier[kind] === "type"));
+    const typeOnly =
+      declaration[kind] === "type" ||
+      Boolean(declaration.specifiers?.length && declaration.specifiers.every(specifier => specifier[kind] === "type"));
     visit(declaration.source, typeOnly);
   };
   return {
@@ -107,8 +114,8 @@ export function importListeners(
     },
     CallExpression(node) {
       const call = node as unknown as ImportNode;
-      if (call.callee?.type === "Identifier" && call.callee.name === "require" &&
-          unshadowed(call, "require")) dynamic(call, call.arguments?.[0], "require");
+      if (call.callee?.type === "Identifier" && call.callee.name === "require" && unshadowed(call, "require"))
+        dynamic(call, call.arguments?.[0], "require");
     },
     TSImportType(node: unknown) {
       const type = node as ImportNode;

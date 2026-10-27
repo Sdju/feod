@@ -1,0 +1,56 @@
+{
+  "name": "@o-feod/config",
+  "version": "0.1.7",
+  "description": "FEOD project configuration: schema, loader, normalization and layer sets, shared by the linters and tooling",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.mjs",
+  "types": "dist/app/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/app/index.d.ts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "vp pack && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vp test run"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:typescript6",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "feod",
+    "architecture",
+    "config"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sdju/feod.git",
+    "directory": "packages/config"
+  },
+  "homepage": "https://github.com/Sdju/feod#readme",
+  "bugs": {
+    "url": "https://github.com/Sdju/feod/issues"
+  }
+}

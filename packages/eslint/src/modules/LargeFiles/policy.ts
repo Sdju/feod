@@ -1,36 +1,30 @@
 import path from "node:path";
 
-export type LargeFileEntry = {
-  /** Highest accepted line count; it only goes down. */
-  ceiling: number;
-  /** How the file is going to be split. */
-  plan: string;
-};
-export type LargeFilesPolicy = {
-  /** Line limits by extension (".vue") with a required-by-default "default". */
-  thresholds?: Record<string, number>;
-  /** Registered oversized files by project-relative POSIX path. */
-  files?: Record<string, LargeFileEntry>;
-};
+import { DEFAULT_LARGE_FILE_LIMIT, type LargeFileEntry, type LargeFilesPolicy } from "@o-feod/config";
+export { DEFAULT_LARGE_FILE_LIMIT };
+export type { LargeFileEntry, LargeFilesPolicy };
 
 export const largeFilesSchema = {
-  type: "object", additionalProperties: false,
+  type: "object",
+  additionalProperties: false,
   properties: {
     thresholds: {
-      type: "object", additionalProperties: { type: "integer", minimum: 1 },
+      type: "object",
+      additionalProperties: { type: "integer", minimum: 1 },
       propertyNames: { pattern: "^(default|\\.[^./\\\\]+)$" },
     },
     files: {
-      type: "object", propertyNames: { minLength: 1 },
+      type: "object",
+      propertyNames: { minLength: 1 },
       additionalProperties: {
-        type: "object", additionalProperties: false, required: ["ceiling", "plan"],
+        type: "object",
+        additionalProperties: false,
+        required: ["ceiling", "plan"],
         properties: { ceiling: { type: "integer", minimum: 1 }, plan: { type: "string", minLength: 1 } },
       },
     },
   },
 };
-
-export const DEFAULT_LARGE_FILE_LIMIT = 400;
 
 export function sizeLimit(file: string, thresholds: Record<string, number> | undefined) {
   return thresholds?.[path.posix.extname(file)] ?? thresholds?.default ?? DEFAULT_LARGE_FILE_LIMIT;

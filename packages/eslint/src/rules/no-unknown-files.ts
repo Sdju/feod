@@ -52,10 +52,7 @@ const rule: Rule.RuleModule = {
           layers: layerSetSchema,
           rootDir: { type: "string" },
           ignore: {
-            oneOf: [
-              { type: "string" },
-              { type: "array", items: { type: "string" } },
-            ],
+            oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
           },
           srcRoot: { type: "string" },
           filesystem: { type: "boolean" },
@@ -86,9 +83,7 @@ const rule: Rule.RuleModule = {
     const layers = getLayers(srcRoot, options.layerDirs, options.layers);
     const filename = normalizeFilename(getFilename(context), rootDir);
     const isIgnored = createIgnoreMatcher(options.ignore, rootDir);
-    const knownPathCache = createPathMemoizer((relativePath) =>
-      isKnownPath(relativePath, layers)
-    );
+    const knownPathCache = createPathMemoizer(relativePath => isKnownPath(relativePath, layers));
 
     if (!filename || isIgnored(filename)) {
       return {};
@@ -98,12 +93,12 @@ const rule: Rule.RuleModule = {
     const currentUnknown = !knownPathCache.get(relative);
     const inventory = options.filesystem
       ? getInventory({
-        rootDir,
-        srcRoot,
-        layers: options.layers,
-        layerDirs: options.layerDirs,
-        ignore: options.ignore,
-      })
+          rootDir,
+          srcRoot,
+          layers: options.layers,
+          layerDirs: options.layerDirs,
+          ignore: options.ignore,
+        })
       : null;
     const inventoryUnknown = inventory?.uncovered.filter(file => file !== relative) ?? [];
 

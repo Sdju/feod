@@ -4,7 +4,14 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { Linter } from "eslint";
 
-import { checkLargeFile, createConfig, FeodConfigError, largeFilesRows, renderLargeFilesMarkdown, type FeodRootConfig } from "../src/app/index.js";
+import {
+  checkLargeFile,
+  createConfig,
+  FeodConfigError,
+  largeFilesRows,
+  renderLargeFilesMarkdown,
+  type FeodRootConfig,
+} from "../src/app/index.js";
 import { clearInventoryState } from "../src/modules/Architecture/index.js";
 
 const temporary: string[] = [];
@@ -27,9 +34,12 @@ function project(files: string[] = []) {
 
 function lint(rootDir: string, file: string, lines: number, root: FeodRootConfig) {
   const config = createConfig({ roots: { src: root } }, { rootDir });
-  return new Linter({ cwd: rootDir }).verify(body(lines), [{ ...config, files: ["**/*.ts"] }], {
-    filename: path.join(rootDir, file),
-  }).filter(message => message.ruleId === "feod-structure/large-files").map(message => message.message);
+  return new Linter({ cwd: rootDir })
+    .verify(body(lines), [{ ...config, files: ["**/*.ts"] }], {
+      filename: path.join(rootDir, file),
+    })
+    .filter(message => message.ruleId === "feod-structure/large-files")
+    .map(message => message.message);
 }
 
 const registry = (files: Record<string, { ceiling: number; plan: string }> = {}) => ({
@@ -76,15 +86,21 @@ describe("large-files rule", () => {
   it("reports growth, shrinkage and a no-longer-needed entry", () => {
     const entry = { "src/big.ts": { ceiling: 15, plan: "split" } };
     const rootDir = project(["src/big.ts"]);
-    expect(lint(rootDir, "src/big.ts", 16, registry(entry))[0]).toContain("grew to 16 lines, past its registry ceiling of 15");
-    expect(lint(rootDir, "src/big.ts", 12, registry(entry))[0]).toContain("Lower its ceiling in extra.largeFiles.files from 15 to 12");
+    expect(lint(rootDir, "src/big.ts", 16, registry(entry))[0]).toContain(
+      "grew to 16 lines, past its registry ceiling of 15",
+    );
+    expect(lint(rootDir, "src/big.ts", 12, registry(entry))[0]).toContain(
+      "Lower its ceiling in extra.largeFiles.files from 15 to 12",
+    );
     expect(lint(rootDir, "src/big.ts", 9, registry(entry))[0]).toContain("Remove it from extra.largeFiles.files");
   });
 
   it("reports registered files that no longer exist once per run", () => {
     const entry = { "src/gone.ts": { ceiling: 15, plan: "split" } };
     const rootDir = project();
-    expect(lint(rootDir, "src/a.ts", 1, registry(entry))).toEqual([expect.stringContaining("'src/gone.ts' is registered")]);
+    expect(lint(rootDir, "src/a.ts", 1, registry(entry))).toEqual([
+      expect.stringContaining("'src/gone.ts' is registered"),
+    ]);
     expect(lint(rootDir, "src/b.ts", 1, registry(entry))).toEqual([]);
   });
 
@@ -111,7 +127,12 @@ describe("extra.largeFiles configuration", () => {
       rootDefault: registry({ "a.ts": { ceiling: 20, plan: "split" } }),
       roots: { src: {}, core: { extra: { largeFiles: { files: {} } } } },
     });
-    const roots = (config.rules["feod-structure/large-files"] as [string, { roots: Record<string, { largeFiles: { files: object } }> }])[1].roots;
+    const roots = (
+      config.rules["feod-structure/large-files"] as [
+        string,
+        { roots: Record<string, { largeFiles: { files: object } }> },
+      ]
+    )[1].roots;
     expect(Object.keys(roots.src!.largeFiles.files)).toEqual(["a.ts"]);
     expect(Object.keys(roots.core!.largeFiles.files)).toEqual([]);
   });
@@ -150,18 +171,38 @@ describe("large-files report", () => {
       { file: "src/a.ts", lines: 80, ceiling: 90, plan: "keep | trim\nlater", limit: 10 },
       { file: "src/gone.ts", lines: null, ceiling: 70, plan: "x", limit: 10 },
     ];
-    expect(renderLargeFilesMarkdown(rows)).toBe([
-      "# Large files", "",
-      "| File | Lines | Ceiling | Split plan |", "| --- | ---: | ---: | --- |",
-      "| `src/a.ts` | 80 | 90 | keep \\| trim later |", "| `src/gone.ts` | — | 70 | x |", "",
-    ].join("\n"));
-    expect(renderLargeFilesMarkdown(rows.slice(0, 1), {
-      title: "Реестр", intro: "Вводный текст.", columns: { file: "Файл", lines: "Строк", ceiling: "Потолок", plan: "План" }, missing: "нет",
-    })).toBe([
-      "# Реестр", "", "Вводный текст.", "",
-      "| Файл | Строк | Потолок | План |", "| --- | ---: | ---: | --- |",
-      "| `src/a.ts` | 80 | 90 | keep \\| trim later |", "",
-    ].join("\n"));
-    expect(renderLargeFilesMarkdown([])).toBe("# Large files\n\n| File | Lines | Ceiling | Split plan |\n| --- | ---: | ---: | --- |\n");
+    expect(renderLargeFilesMarkdown(rows)).toBe(
+      [
+        "# Large files",
+        "",
+        "| File | Lines | Ceiling | Split plan |",
+        "| --- | ---: | ---: | --- |",
+        "| `src/a.ts` | 80 | 90 | keep \\| trim later |",
+        "| `src/gone.ts` | — | 70 | x |",
+        "",
+      ].join("\n"),
+    );
+    expect(
+      renderLargeFilesMarkdown(rows.slice(0, 1), {
+        title: "Реестр",
+        intro: "Вводный текст.",
+        columns: { file: "Файл", lines: "Строк", ceiling: "Потолок", plan: "План" },
+        missing: "нет",
+      }),
+    ).toBe(
+      [
+        "# Реестр",
+        "",
+        "Вводный текст.",
+        "",
+        "| Файл | Строк | Потолок | План |",
+        "| --- | ---: | ---: | --- |",
+        "| `src/a.ts` | 80 | 90 | keep \\| trim later |",
+        "",
+      ].join("\n"),
+    );
+    expect(renderLargeFilesMarkdown([])).toBe(
+      "# Large files\n\n| File | Lines | Ceiling | Split plan |\n| --- | ---: | ---: | --- |\n",
+    );
   });
 });

@@ -7,7 +7,7 @@ import { spawnSync } from "node:child_process";
 const root = fileURLToPath(new URL("..", import.meta.url));
 const selection = process.env.RELEASE_PACKAGE ?? "both";
 const dryRunValue = process.env.RELEASE_DRY_RUN ?? "true";
-if (!["both", "eslint", "oxlint"].includes(selection)) {
+if (!["both", "config", "eslint", "oxlint"].includes(selection)) {
   throw new Error(`Unknown package selection: ${selection}`);
 }
 if (!["true", "false"].includes(dryRunValue)) {
@@ -34,13 +34,17 @@ function isPublished(name, version) {
     return true;
   }
   let error;
-  try { error = JSON.parse(result.stdout).error; } catch { /* Report the original failure below. */ }
+  try {
+    error = JSON.parse(result.stdout).error;
+  } catch {
+    /* Report the original failure below. */
+  }
   if (error?.code === "E404") return false;
   throw new Error(`Cannot check ${name}@${version}: ${result.stderr || result.stdout}`);
 }
 
-// Sequential publication makes the shared ESLint dependency available first.
-for (const directory of selection === "both" ? ["eslint", "oxlint"] : [selection]) {
+// Sequential publication makes shared dependencies available first: config, then ESLint, then Oxlint.
+for (const directory of selection === "both" ? ["config", "eslint", "oxlint"] : [selection]) {
   const packageDir = path.join(root, "packages", directory);
   const { name, version } = JSON.parse(readFileSync(path.join(packageDir, "package.json"), "utf8"));
   if (!dryRun && isPublished(name, version)) {
@@ -51,6 +55,14 @@ for (const directory of selection === "both" ? ["eslint", "oxlint"] : [selection
   run("pnpm", ["--dir", packageDir, "pack", "--pack-destination", archiveDir]);
   const archive = path.join(archiveDir, `${name.replace(/^@/, "").replace("/", "-")}-${version}.tgz`);
   console.log(`${dryRun ? "Validating" : "Publishing"} ${name}@${version}`);
-  run("npm", ["publish", archive, "--access", "public", "--ignore-scripts", "--registry", registry,
-    ...(dryRun ? ["--dry-run"] : [])]);
+  run("npm", [
+    "publish",
+    archive,
+    "--access",
+    "public",
+    "--ignore-scripts",
+    "--registry",
+    registry,
+    ...(dryRun ? ["--dry-run"] : []),
+  ]);
 }

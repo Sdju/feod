@@ -33,22 +33,14 @@ function normalizeFilename(filename: string, rootDir: string) {
   return path.resolve(rootDir, filename);
 }
 
-function isCommonIndexFile(
-  filePath: string,
-  rootDir: string,
-  commonDir: string
-) {
+function isCommonIndexFile(filePath: string, rootDir: string, commonDir: string) {
   const relative = toPosix(path.relative(rootDir, filePath));
   if (!relative.startsWith(`${commonDir}/`)) return false;
   const base = path.basename(relative);
   return base === "index" || base.startsWith("index.");
 }
 
-function reportInvalid(
-  context: Rule.RuleContext,
-  node: unknown,
-  messageId: string
-) {
+function reportInvalid(context: Rule.RuleContext, node: unknown, messageId: string) {
   context.report({
     node: node as Rule.Node,
     messageId,
@@ -69,10 +61,7 @@ const rule: Rule.RuleModule = {
           aliasPrefix: { type: "string" },
           aliasRoot: { type: "string" },
           ignore: {
-            oneOf: [
-              { type: "string" },
-              { type: "array", items: { type: "string" } },
-            ],
+            oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
           },
           srcRoot: { type: "string" },
           layerDirs: {
@@ -105,9 +94,7 @@ const rule: Rule.RuleModule = {
     const layerAliases = getLayerAliases(layerDirs, options.layerAliases);
     const filename = normalizeFilename(getFilename(context), rootDir);
     const isIgnored = createIgnoreMatcher(options.ignore, rootDir);
-    const commonIndexCache = createPathMemoizer((filePath) =>
-      isCommonIndexFile(filePath, rootDir, layerDirs.common)
-    );
+    const commonIndexCache = createPathMemoizer(filePath => isCommonIndexFile(filePath, rootDir, layerDirs.common));
 
     if (!filename || isIgnored(filename)) {
       return {};

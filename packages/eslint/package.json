@@ -1,13 +1,13 @@
 {
   "name": "@o-feod/eslint-structure-plugin",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": false,
   "main": "dist/index.mjs",
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "test": "pnpm lint && vitest run",
-    "build": "tsdown --config-loader unrun && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "test": "pnpm lint && vp test run",
+    "build": "vp pack && tsc --emitDeclarationOnly --declaration --outDir dist",
     "prepublishOnly": "pnpm lint",
     "lint": "pnpm build && eslint src --max-warnings=0"
   },
@@ -17,18 +17,17 @@
     "@types/picomatch": "catalog:",
     "@typescript-eslint/parser": "8.71.0",
     "eslint": "catalog:",
-    "tsdown": "catalog:",
     "typescript": "catalog:typescript6",
+    "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
   "types": "dist/app/index.d.ts",
   "dependencies": {
     "@types/eslint": "catalog:",
-    "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1",
     "eslint-import-resolver-node": "catalog:",
     "eslint-module-utils": "catalog:",
-    "picomatch": "catalog:"
+    "picomatch": "catalog:",
+    "@o-feod/config": "workspace:^"
   },
   "description": "FEOD ESLint structure plugin",
   "sideEffects": false,

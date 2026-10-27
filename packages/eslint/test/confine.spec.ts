@@ -14,9 +14,20 @@ function lint(code: string, file: string, policy: { confine: ConfinePolicy }, se
   const config = createConfig({ roots: { src: root, core: root } }, { rootDir });
   const rules = { ...config.rules };
   if (severity === "off") rules["feod-structure/confine"] = "off";
-  return new Linter({ cwd: rootDir }).verify(code, [{
-    ...config, rules, files: ["**/*.ts"], languageOptions: { parser: tsParser, sourceType: "module" },
-  }], { filename: path.join(rootDir, file) }).filter(message => message.ruleId === "feod-structure/confine");
+  return new Linter({ cwd: rootDir })
+    .verify(
+      code,
+      [
+        {
+          ...config,
+          rules,
+          files: ["**/*.ts"],
+          languageOptions: { parser: tsParser, sourceType: "module" },
+        },
+      ],
+      { filename: path.join(rootDir, file) },
+    )
+    .filter(message => message.ruleId === "feod-structure/confine");
 }
 
 const platform = {
@@ -26,8 +37,12 @@ const platform = {
 describe("confine imports", () => {
   it("reports confined import forms outside allowed files", () => {
     const code = [
-      `import fs from "node:fs";`, `import { x } from "node:fs/promises";`, `export * from "ws";`,
-      `const a = require("node-pty");`, `const b = import("ws");`, `import c = require("ws");`,
+      `import fs from "node:fs";`,
+      `import { x } from "node:fs/promises";`,
+      `export * from "ws";`,
+      `const a = require("node-pty");`,
+      `const b = import("ws");`,
+      `import c = require("ws");`,
       `type T = import("ws").WebSocket;`,
     ].join("\n");
     const messages = lint(code, "core/modules/a.ts", platform);
@@ -60,10 +75,17 @@ describe("confine imports", () => {
 });
 
 describe("confine literals", () => {
-  const linux = { confine: [{ name: "linux", literals: ["^/proc(/|$)", "^(xdotool|wmctrl)$"], allowedIn: ["core/os/linux/**"] }] };
+  const linux = {
+    confine: [{ name: "linux", literals: ["^/proc(/|$)", "^(xdotool|wmctrl)$"], allowedIn: ["core/os/linux/**"] }],
+  };
 
   it("reports matching string and template literals", () => {
-    const code = [`const a = "/proc/1/stat";`, "const b = `/proc/self`;", `exec("xdotool");`, `const ok = "/process";`].join("\n");
+    const code = [
+      `const a = "/proc/1/stat";`,
+      "const b = `/proc/self`;",
+      `exec("xdotool");`,
+      `const ok = "/process";`,
+    ].join("\n");
     expect(lint(code, "src/a.ts", linux)).toHaveLength(3);
   });
 
@@ -96,31 +118,58 @@ describe("confine configuration", () => {
   });
 
   it("replaces inherited entries per root, with [] disabling them", () => {
-    const config = createConfig({
-      rootDefault: { extra: platform },
-      roots: { src: {}, core: { extra: { confine: [] } } },
-    }, { rootDir });
-    const options = (config.rules["feod-structure/confine"] as [string, { roots: Record<string, { enabled: boolean }> }])[1];
+    const config = createConfig(
+      {
+        rootDefault: { extra: platform },
+        roots: { src: {}, core: { extra: { confine: [] } } },
+      },
+      { rootDir },
+    );
+    const options = (
+      config.rules["feod-structure/confine"] as [string, { roots: Record<string, { enabled: boolean }> }]
+    )[1];
     expect(options.roots.src!.enabled).toBe(true);
     expect(options.roots.core!.enabled).toBe(false);
   });
 
   it("rejects invalid entries", () => {
-    const build = (confine: unknown) => () => createConfig({ roots: { src: { extra: { confine: confine as never } } } }, { rootDir });
+    const build = (confine: unknown) => () =>
+      createConfig({ roots: { src: { extra: { confine: confine as never } } } }, { rootDir });
     expect(build([{ name: "x" }])).toThrow(FeodConfigError);
     expect(build([{ name: "x", literals: ["("] }])).toThrow(/invalid regular expression/);
-    expect(build([{ name: "x", imports: ["a"] }, { name: "x", imports: ["b"] }])).toThrow(/duplicate confine name/);
+    expect(
+      build([
+        { name: "x", imports: ["a"] },
+        { name: "x", imports: ["b"] },
+      ]),
+    ).toThrow(/duplicate confine name/);
     expect(build([{ imports: ["a"] }])).toThrow(FeodConfigError);
   });
 
   it("applies the nearest root's policy", () => {
-    const config = createConfig({ roots: {
-      src: { extra: { confine: [{ name: "a", imports: ["ws"] }] } },
-      core: { extra: { confine: [{ name: "b", imports: ["pg"] }] } },
-    } }, { rootDir });
-    const run = (file: string, code: string) => new Linter({ cwd: rootDir }).verify(code, [{
-      ...config, files: ["**/*.ts"], languageOptions: { parser: tsParser, sourceType: "module" },
-    }], { filename: path.join(rootDir, file) }).filter(m => m.ruleId === "feod-structure/confine");
+    const config = createConfig(
+      {
+        roots: {
+          src: { extra: { confine: [{ name: "a", imports: ["ws"] }] } },
+          core: { extra: { confine: [{ name: "b", imports: ["pg"] }] } },
+        },
+      },
+      { rootDir },
+    );
+    const run = (file: string, code: string) =>
+      new Linter({ cwd: rootDir })
+        .verify(
+          code,
+          [
+            {
+              ...config,
+              files: ["**/*.ts"],
+              languageOptions: { parser: tsParser, sourceType: "module" },
+            },
+          ],
+          { filename: path.join(rootDir, file) },
+        )
+        .filter(m => m.ruleId === "feod-structure/confine");
     expect(run("src/a.ts", `import "ws"; import "pg";`)).toHaveLength(1);
     expect(run("core/a.ts", `import "ws"; import "pg";`)).toHaveLength(1);
   });
@@ -132,15 +181,27 @@ describe("confine targets", () => {
     fs.mkdirSync(path.dirname(path.join(temp, file)), { recursive: true });
     fs.writeFileSync(path.join(temp, file), "export const x = 1;\n");
   };
-  for (const file of ["core/os/index.ts", "core/os/impl/linux.ts", "core/launcher/index.ts", "src/app/entry.ts", "src/modules/a/index.ts"]) write(file);
+  for (const file of [
+    "core/os/index.ts",
+    "core/os/impl/linux.ts",
+    "core/launcher/index.ts",
+    "src/app/entry.ts",
+    "src/modules/a/index.ts",
+  ])
+    write(file);
   afterAll(() => fs.rmSync(temp, { recursive: true, force: true }));
 
   const policy = { confine: [{ name: "os-facade", targets: ["core/os/**"], allowedIn: ["core/os/**", "server/**"] }] };
   const run = (code: string, file: string, confine = policy) => {
-    const config = createConfig({ roots: { src: { extra: confine }, core: { extra: confine }, server: { extra: confine } } }, { rootDir: temp });
-    return new Linter({ cwd: temp }).verify(code, [{ ...config, files: ["**/*.ts"], languageOptions: { parser: tsParser, sourceType: "module" } }], {
-      filename: path.join(temp, file),
-    }).filter(message => message.ruleId === "feod-structure/confine");
+    const config = createConfig(
+      { roots: { src: { extra: confine }, core: { extra: confine }, server: { extra: confine } } },
+      { rootDir: temp },
+    );
+    return new Linter({ cwd: temp })
+      .verify(code, [{ ...config, files: ["**/*.ts"], languageOptions: { parser: tsParser, sourceType: "module" } }], {
+        filename: path.join(temp, file),
+      })
+      .filter(message => message.ruleId === "feod-structure/confine");
   };
 
   it("judges relative and alias imports by the file they resolve to", () => {
@@ -156,7 +217,11 @@ describe("confine targets", () => {
 
   it("allows files in allowedIn, ignores unresolved paths and honors allowTypeImports", () => {
     expect(run(`import { x } from "./impl/linux";`, "core/os/index.ts")).toEqual([]);
-    expect(run(`import { x } from "../os";`, "src/app/entry.ts", { confine: [{ ...policy.confine[0]!, allowedIn: ["src/**"] }] })).toEqual([]);
+    expect(
+      run(`import { x } from "../os";`, "src/app/entry.ts", {
+        confine: [{ ...policy.confine[0]!, allowedIn: ["src/**"] }],
+      }),
+    ).toEqual([]);
     expect(run(`import { x } from "../missing";`, "core/launcher/index.ts")).toEqual([]);
     expect(run(`import type { x } from "../os";`, "core/launcher/index.ts")).toHaveLength(1);
     const lenient = { confine: [{ ...policy.confine[0]!, allowTypeImports: true }] };

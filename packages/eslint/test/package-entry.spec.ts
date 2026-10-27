@@ -18,9 +18,7 @@ describe("package entry", () => {
     };
 
     expect(typeof packageJson.main).toBe("string");
-    expect(
-      fs.existsSync(path.join(packageDir, packageJson.main as string))
-    ).toBe(true);
+    expect(fs.existsSync(path.join(packageDir, packageJson.main as string))).toBe(true);
   });
 
   it("can be imported via package root", async () => {
@@ -35,11 +33,17 @@ describe("package entry", () => {
   it("resolves imports with settings from the native ESM build", async () => {
     const { default: plugin } = await import(pathToFileURL(path.join(packageDir, "dist/index.mjs")).href);
     const rootDir = path.join(testDir, "fixtures/resolver");
-    const messages = new Linter({ cwd: rootDir }).verify("import 'modules/Feature';", [{
-      plugins: { "feod-structure": plugin },
-      rules: { "feod-structure/layer-imports": ["error", { rootDir }] },
-      settings: { "import/resolver": { node: { paths: [path.join(rootDir, "src")], extensions: [".js"] } } },
-    }], { filename: path.join(rootDir, "src/common/util.js") });
+    const messages = new Linter({ cwd: rootDir }).verify(
+      "import 'modules/Feature';",
+      [
+        {
+          plugins: { "feod-structure": plugin },
+          rules: { "feod-structure/layer-imports": ["error", { rootDir }] },
+          settings: { "import/resolver": { node: { paths: [path.join(rootDir, "src")], extensions: [".js"] } } },
+        },
+      ],
+      { filename: path.join(rootDir, "src/common/util.js") },
+    );
     expect(messages).toHaveLength(1);
     expect(messages[0].messageId).toBe("invalidLayerImport");
   });
@@ -50,7 +54,9 @@ describe("package entry", () => {
       fs.mkdirSync(path.join(root, "node_modules/@o-feod"), { recursive: true });
       fs.symlinkSync(packageDir, path.join(root, "node_modules/@o-feod/eslint-structure-plugin"), "dir");
       const source = path.join(root, "check.mts");
-      fs.writeFileSync(source, `import { createConfig, configFromProject, loadFeodConfig, type FeodConfig, type SubmodulePolicy, type ImportPolicy, type GlobalFilesPolicy, type InventoryPolicy, type ModuleNamesPolicy, type ModulePolicy } from '@o-feod/eslint-structure-plugin';
+      fs.writeFileSync(
+        source,
+        `import { createConfig, configFromProject, loadFeodConfig, type FeodConfig, type SubmodulePolicy, type ImportPolicy, type GlobalFilesPolicy, type InventoryPolicy, type ModuleNamesPolicy, type ModulePolicy } from '@o-feod/eslint-structure-plugin';
 const globals: GlobalFilesPolicy = { allowedFiles: ["**/*.d.ts"], localImports: "type-only" };
 const entryPolicy: ModulePolicy = { publicEntries: ["index.ts"], requirePublicEntry: true };
 createConfig({ modules: entryPolicy });
@@ -75,14 +81,28 @@ import { resolveImport, type ResolveResult } from '@o-feod/eslint-structure-plug
 const sample: ResolveResult = { status: "external", via: "package" };
 void resolveImport;
 void sample;
-const rootDir: string = loadFeodConfig().rootDir;`);
+const rootDir: string = loadFeodConfig().rootDir;`,
+      );
       const require = createRequire(import.meta.url);
       const typescriptPackagePath = require.resolve("typescript/package.json");
       const typescriptPackage = JSON.parse(fs.readFileSync(typescriptPackagePath, "utf8"));
       const compilerPath = path.resolve(path.dirname(typescriptPackagePath), typescriptPackage.bin.tsc);
-      const result = spawnSync(process.execPath, [compilerPath, source,
-        "--noEmit", "--strict", "--module", "NodeNext", "--moduleResolution", "NodeNext", "--target", "ES2022"],
-      { cwd: root, encoding: "utf8", timeout: 30_000 });
+      const result = spawnSync(
+        process.execPath,
+        [
+          compilerPath,
+          source,
+          "--noEmit",
+          "--strict",
+          "--module",
+          "NodeNext",
+          "--moduleResolution",
+          "NodeNext",
+          "--target",
+          "ES2022",
+        ],
+        { cwd: root, encoding: "utf8", timeout: 30_000 },
+      );
       expect(result.error).toBeUndefined();
       expect(result.stdout + result.stderr).toBe("");
       expect(result.status).toBe(0);

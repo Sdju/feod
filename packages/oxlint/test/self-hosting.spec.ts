@@ -13,7 +13,9 @@ const require = createRequire(import.meta.url);
 const cli = path.join(path.dirname(require.resolve("oxlint/package.json")), "bin/oxlint");
 const plugin = fileURLToPath(new URL("../dist/index.mjs", import.meta.url));
 let rootDir: string;
-afterEach(() => { if (rootDir) fs.rmSync(rootDir, { recursive: true, force: true }); });
+afterEach(() => {
+  if (rootDir) fs.rmSync(rootDir, { recursive: true, force: true });
+});
 
 describe("Oxlint package self-hosting architecture", () => {
   it.each(selfHostingCases)("$name", ({ file, source, rule }) => {
@@ -24,18 +26,29 @@ describe("Oxlint package self-hosting architecture", () => {
       fs.writeFileSync(target, content);
     }
     const configFile = path.join(rootDir, ".oxlintrc.json");
-    fs.writeFileSync(configFile, JSON.stringify({
-      ...createConfig(feod, { rootDir, preset: "strict" }),
-      jsPlugins: [{ name: "feod-structure", specifier: plugin }],
-      plugins: [], categories: { correctness: "off" },
-    }));
-    const result = spawnSync(process.execPath, [cli, "--config", configFile, "--threads=1", "--format=json", path.join(rootDir, file)], {
-      cwd: rootDir, encoding: "utf8", timeout: 15_000,
-    });
+    fs.writeFileSync(
+      configFile,
+      JSON.stringify({
+        ...createConfig(feod, { rootDir, preset: "strict" }),
+        jsPlugins: [{ name: "feod-structure", specifier: plugin }],
+        plugins: [],
+        categories: { correctness: "off" },
+      }),
+    );
+    const result = spawnSync(
+      process.execPath,
+      [cli, "--config", configFile, "--threads=1", "--format=json", path.join(rootDir, file)],
+      {
+        cwd: rootDir,
+        encoding: "utf8",
+        timeout: 15_000,
+      },
+    );
     expect(result.error).toBeUndefined();
     expect(result.stderr).toBe("");
-    expect(JSON.parse(result.stdout).diagnostics.map((message: { code: string }) => message.code))
-      .toEqual(rule ? [`feod-structure(${rule})`] : []);
+    expect(JSON.parse(result.stdout).diagnostics.map((message: { code: string }) => message.code)).toEqual(
+      rule ? [`feod-structure(${rule})`] : [],
+    );
     expect(result.status).toBe(rule ? 1 : 0);
   });
 });

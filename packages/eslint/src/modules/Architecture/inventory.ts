@@ -5,9 +5,7 @@ import { createIgnoreMatcher, type IgnorePatterns } from "../../common/ignore.js
 import { getLayers, type LayerDirs } from "./layers.js";
 import type { LayerSet } from "../Layers/index.js";
 
-const SOURCE_EXTENSIONS = new Set([
-  ".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs", ".vue",
-]);
+const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs", ".vue"]);
 
 export type InventoryModule = {
   ownerRoot: string;
@@ -117,7 +115,9 @@ function collectDirectoryModule(
 function discoverModules(
   modulesDir: string,
   allFiles: readonly string[],
-  options: Required<Pick<InventoryOptions, "singleFileModules" | "publicEntries">> & { transitModules: ReadonlySet<string> },
+  options: Required<Pick<InventoryOptions, "singleFileModules" | "publicEntries">> & {
+    transitModules: ReadonlySet<string>;
+  },
 ): InventoryModule[] {
   const prefix = `${modulesDir}/`;
   const moduleFiles = allFiles.filter(file => file === modulesDir || file.startsWith(prefix));
@@ -137,7 +137,13 @@ function discoverModules(
     modules.push(module);
   }
 
-  function walkDirectoryOwner(ownerRoot: string, moduleName: string, names: string[], depth: number, transitChild: boolean) {
+  function walkDirectoryOwner(
+    ownerRoot: string,
+    moduleName: string,
+    names: string[],
+    depth: number,
+    transitChild: boolean,
+  ) {
     const nestedPrefix = `${ownerRoot}/modules/`;
     const childNames = new Set<string>();
     for (const file of moduleFiles) {
@@ -169,15 +175,17 @@ function discoverModules(
       return true;
     });
 
-    register(collectDirectoryModule(
-      ownerRoot,
-      moduleName,
-      names,
-      depth,
-      transitChild ? "transit-submodule" : "directory",
-      owned,
-      options.publicEntries,
-    ));
+    register(
+      collectDirectoryModule(
+        ownerRoot,
+        moduleName,
+        names,
+        depth,
+        transitChild ? "transit-submodule" : "directory",
+        owned,
+        options.publicEntries,
+      ),
+    );
 
     for (const child of [...childNames].sort()) {
       walkDirectoryOwner(`${ownerRoot}/modules/${child}`, moduleName, [...names, child], depth + 1, false);
@@ -194,15 +202,17 @@ function discoverModules(
     if (path.posix.extname(top)) {
       if (!options.singleFileModules) continue;
       const owned = moduleFiles.filter(file => file === topPath);
-      register(collectDirectoryModule(
-        topPath,
-        path.posix.parse(top).name,
-        [path.posix.parse(top).name],
-        0,
-        "single-file",
-        owned,
-        options.publicEntries,
-      ));
+      register(
+        collectDirectoryModule(
+          topPath,
+          path.posix.parse(top).name,
+          [path.posix.parse(top).name],
+          0,
+          "single-file",
+          owned,
+          options.publicEntries,
+        ),
+      );
       continue;
     }
     walkDirectoryOwner(topPath, top, [top], 0, false);
@@ -216,7 +226,9 @@ function discoverEmptyDirectories(
   rootDir: string,
   isIgnored: (file: string) => boolean,
   existing: ReadonlySet<string>,
-  options: Required<Pick<InventoryOptions, "singleFileModules" | "publicEntries">> & { transitModules: ReadonlySet<string> },
+  options: Required<Pick<InventoryOptions, "singleFileModules" | "publicEntries">> & {
+    transitModules: ReadonlySet<string>;
+  },
 ): InventoryModule[] {
   if (!fs.existsSync(absoluteModulesDir)) return [];
   const extras: InventoryModule[] = [];
@@ -224,7 +236,17 @@ function discoverEmptyDirectories(
   function visit(absoluteOwner: string, moduleName: string, names: string[], depth: number, transitChild: boolean) {
     const ownerRoot = toPosix(path.relative(rootDir, absoluteOwner));
     if (!existing.has(ownerRoot) && !isIgnored(absoluteOwner)) {
-      extras.push(collectDirectoryModule(ownerRoot, moduleName, names, depth, transitChild ? "transit-submodule" : "directory", [], options.publicEntries));
+      extras.push(
+        collectDirectoryModule(
+          ownerRoot,
+          moduleName,
+          names,
+          depth,
+          transitChild ? "transit-submodule" : "directory",
+          [],
+          options.publicEntries,
+        ),
+      );
     }
     let entries: fs.Dirent[];
     try {
@@ -273,15 +295,17 @@ function discoverEmptyDirectories(
       if (!options.singleFileModules) continue;
       const ownerRoot = toPosix(path.relative(rootDir, absolute));
       if (existing.has(ownerRoot)) continue;
-      extras.push(collectDirectoryModule(
-        ownerRoot,
-        path.posix.parse(entry.name).name,
-        [path.posix.parse(entry.name).name],
-        0,
-        "single-file",
-        [ownerRoot],
-        options.publicEntries,
-      ));
+      extras.push(
+        collectDirectoryModule(
+          ownerRoot,
+          path.posix.parse(entry.name).name,
+          [path.posix.parse(entry.name).name],
+          0,
+          "single-file",
+          [ownerRoot],
+          options.publicEntries,
+        ),
+      );
       continue;
     }
     if (!(entry.isDirectory() || entry.isSymbolicLink())) continue;
@@ -299,7 +323,9 @@ export function buildInventory(options: InventoryOptions): RootInventory {
   const isIgnored = createIgnoreMatcher(options.ignore, rootDir);
   const absoluteRoot = path.join(rootDir, srcRoot);
   const allFiles = listFiles(absoluteRoot, rootDir, isIgnored);
-  const uncovered = allFiles.filter(file => !layers.some(layer => file === layer.dir || file.startsWith(`${layer.dir}/`)));
+  const uncovered = allFiles.filter(
+    file => !layers.some(layer => file === layer.dir || file.startsWith(`${layer.dir}/`)),
+  );
   const modulesLayer = layers.find(layer => layer.role === "modules");
   const publicEntries = options.publicEntries ?? [];
   const singleFileModules = options.singleFileModules ?? false;
@@ -311,13 +337,11 @@ export function buildInventory(options: InventoryOptions): RootInventory {
 
   const fromFiles = discoverModules(modulesLayer.dir, allFiles, { singleFileModules, publicEntries, transitModules });
   const existing = new Set(fromFiles.map(module => module.ownerRoot));
-  const empty = discoverEmptyDirectories(
-    path.join(rootDir, modulesLayer.dir),
-    rootDir,
-    isIgnored,
-    existing,
-    { singleFileModules, publicEntries, transitModules },
-  );
+  const empty = discoverEmptyDirectories(path.join(rootDir, modulesLayer.dir), rootDir, isIgnored, existing, {
+    singleFileModules,
+    publicEntries,
+    transitModules,
+  });
   return {
     srcRoot,
     modules: [...fromFiles, ...empty].sort((a, b) => a.ownerRoot.localeCompare(b.ownerRoot)),

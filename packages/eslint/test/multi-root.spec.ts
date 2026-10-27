@@ -17,14 +17,20 @@ afterEach(() => temporary.splice(0).forEach(root => fs.rmSync(root, { recursive:
 function lint(config: FeodConfig, file: string, code = "export const value = 1;") {
   const rootDir = "/project";
   const linter = new Linter({ cwd: rootDir });
-  return linter.verify(code, [createConfig(config, { rootDir, preset: "strict" })], { filename: path.join(rootDir, file) });
+  return linter.verify(code, [createConfig(config, { rootDir, preset: "strict" })], {
+    filename: path.join(rootDir, file),
+  });
 }
 
 describe("files outside explicit roots", () => {
-  const config: FeodConfig = { roots: { src: {}, core: {} }, rootDefault: {
-    extra: { confine: [{ name: "ws", imports: ["ws"] }], largeFiles: { thresholds: { default: 1 } } },
-    modules: { requirePublicEntry: true }, inventory: { uncovered: true },
-  } };
+  const config: FeodConfig = {
+    roots: { src: {}, core: {} },
+    rootDefault: {
+      extra: { confine: [{ name: "ws", imports: ["ws"] }], largeFiles: { thresholds: { default: 1 } } },
+      modules: { requirePublicEntry: true },
+      inventory: { uncovered: true },
+    },
+  };
 
   it("are not checked by any rule, while files inside a root are", () => {
     const code = 'import "ws";\nimport "./nope";\nexport const a = 1;\nexport const b = 2;\n';
@@ -52,18 +58,35 @@ describe("root defaults and overrides", () => {
 
   it("merges maps by field, replaces arrays and leaves input untouched", () => {
     const input: FeodConfig = {
-      rootDefault: { layerDirs: { global: "globals", modules: "features" },
-        layerAliases: { "#core": "core/features" }, common: { maxDepth: 0 },
-        ignore: ["**/generated/**"], dependencies: ["core"], transitModules: ["API"] },
-      roots: { src: {}, server: { layerDirs: { modules: "modules" },
-        ignore: [], transitModules: [], common: { maxDepth: 2 } }, core: { dependencies: [] } },
+      rootDefault: {
+        layerDirs: { global: "globals", modules: "features" },
+        layerAliases: { "#core": "core/features" },
+        common: { maxDepth: 0 },
+        ignore: ["**/generated/**"],
+        dependencies: ["core"],
+        transitModules: ["API"],
+      },
+      roots: {
+        src: {},
+        server: { layerDirs: { modules: "modules" }, ignore: [], transitModules: [], common: { maxDepth: 2 } },
+        core: { dependencies: [] },
+      },
     };
     const before = JSON.stringify(input);
     const normalized = loadFeodConfig({ rootDir: project(input) }).config;
-    expect(normalized.roots.src).toMatchObject({ aliasRoot: "src", layerDirs: { modules: "features", global: "globals" },
-      layerAliases: { "@modules": "src/features", "#core": "core/features" }, dependencies: ["core"] });
-    expect(normalized.roots.server).toMatchObject({ layerDirs: { modules: "modules", global: "globals" },
-      common: { maxDepth: 2 }, ignore: [], transitModules: [], dependencies: ["core"] });
+    expect(normalized.roots.src).toMatchObject({
+      aliasRoot: "src",
+      layerDirs: { modules: "features", global: "globals" },
+      layerAliases: { "@modules": "src/features", "#core": "core/features" },
+      dependencies: ["core"],
+    });
+    expect(normalized.roots.server).toMatchObject({
+      layerDirs: { modules: "modules", global: "globals" },
+      common: { maxDepth: 2 },
+      ignore: [],
+      transitModules: [],
+      dependencies: ["core"],
+    });
     expect(normalized.roots.core.dependencies).toEqual([]);
     expect(createConfig(normalized).rules).toEqual(createConfig(input).rules);
     expect(JSON.stringify(input)).toBe(before);
@@ -103,11 +126,14 @@ describe("root defaults and overrides", () => {
   });
 
   for (const config of [
-    { srcRoot: "src", roots: { src: {} } }, { roots: {} },
-    { roots: { "/absolute": {} } }, { roots: { "../outside": {} } },
+    { srcRoot: "src", roots: { src: {} } },
+    { roots: {} },
+    { roots: { "/absolute": {} } },
+    { roots: { "../outside": {} } },
     { roots: { src: {}, "./src": {} } },
     { roots: { src: { dependencies: ["missing"] } } },
-    { rootDefault: { typo: true } }, { roots: { src: { common: { maxDepth: -1 } } } },
+    { rootDefault: { typo: true } },
+    { roots: { src: { common: { maxDepth: -1 } } } },
   ]) {
     it(`rejects invalid root config ${JSON.stringify(config)}`, () => {
       expect(() => createConfig(config as FeodConfig)).toThrow("FEOD configuration:");
@@ -123,7 +149,12 @@ describe("cross-root imports", () => {
   };
   it("permits public module APIs, rejecting private, nested and upper-layer targets", () => {
     expect(lint(config, "src/app/x.js", "import '@core/User';")).toEqual([]);
-    for (const target of ["@core/User/private", "@core/User/modules/Child/index.ts", "../../core/app/x.js", "../../core/common/x.js"]) {
+    for (const target of [
+      "@core/User/private",
+      "@core/User/modules/Child/index.ts",
+      "../../core/app/x.js",
+      "../../core/common/x.js",
+    ]) {
       expect(lint(config, "src/app/x.js", `import '${target}';`)).toEqual([
         expect.objectContaining({ messageId: "crossRootPublicOnly" }),
       ]);
@@ -141,8 +172,10 @@ describe("cross-root imports", () => {
     ]);
   });
   it("uses the target root's single-file and transit module settings", () => {
-    const extended: FeodConfig = { ...config, roots: { src: { dependencies: ["core"] },
-      core: { singleFileModules: true, transitModules: ["API"] } } };
+    const extended: FeodConfig = {
+      ...config,
+      roots: { src: { dependencies: ["core"] }, core: { singleFileModules: true, transitModules: ["API"] } },
+    };
     expect(lint(extended, "src/app/x.js", "import '@core/User.ts';")).toEqual([]);
     expect(lint(extended, "src/app/x.js", "import '@core/API/client';")).toEqual([]);
     expect(lint(extended, "src/app/x.js", "import '@core/API/_/private';")).toEqual([

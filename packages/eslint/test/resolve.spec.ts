@@ -69,9 +69,14 @@ describe("resolver contract", () => {
     const aliased = resolveImport("@modules/User", context, filename, options(rootDir));
     expect(aliased).toMatchObject({ status: "resolved", exists: true });
 
-    const hashAlias = resolveImport("#modules/User", context, filename, options(rootDir, {
-      layerAliases: { "#modules": "src/modules" },
-    }));
+    const hashAlias = resolveImport(
+      "#modules/User",
+      context,
+      filename,
+      options(rootDir, {
+        layerAliases: { "#modules": "src/modules" },
+      }),
+    );
     expect(hashAlias).toMatchObject({ status: "resolved", exists: true, via: "alias" });
 
     const linked = resolveImport("../modules/Linked/index.js", context, filename, options(rootDir));
@@ -86,7 +91,12 @@ describe("resolver contract", () => {
     write(rootDir, "src/modules/User/index.js");
     write(rootDir, "src/app/main.js");
     const filename = path.join(rootDir, "src/app/main.js");
-    const result = resolveImport("../modules/User/index.js?raw#section", contextStub(rootDir), filename, options(rootDir));
+    const result = resolveImport(
+      "../modules/User/index.js?raw#section",
+      contextStub(rootDir),
+      filename,
+      options(rootDir),
+    );
     expect(result).toMatchObject({
       status: "resolved",
       exists: true,
@@ -104,8 +114,14 @@ describe("resolver contract", () => {
 
     expect(resolveImport("node:fs", context, filename, opts)).toMatchObject({ status: "external", via: "builtin" });
     expect(resolveImport("lodash", context, filename, opts)).toMatchObject({ status: "external", via: "package" });
-    expect(resolveImport("virtual:feod", context, filename, opts)).toMatchObject({ status: "unsupported", reason: "virtual" });
-    expect(resolveImport("https://example.com/x.js", context, filename, opts)).toMatchObject({ status: "unsupported", reason: "remote" });
+    expect(resolveImport("virtual:feod", context, filename, opts)).toMatchObject({
+      status: "unsupported",
+      reason: "virtual",
+    });
+    expect(resolveImport("https://example.com/x.js", context, filename, opts)).toMatchObject({
+      status: "unsupported",
+      reason: "remote",
+    });
 
     const missing = resolveImport("../modules/Missing/index.js", context, filename, opts);
     expect(missing).toMatchObject({ status: "unresolved", candidate: expect.stringContaining("modules/Missing") });
@@ -115,17 +131,22 @@ describe("resolver contract", () => {
     );
   });
 
-  it.each([[".js", ".ts"], [".js", ".tsx"], [".jsx", ".tsx"], [".mjs", ".mts"], [".cjs", ".cts"]])(
-    "resolves runtime %s imports to TypeScript %s sources", (runtime, source) => {
-      const rootDir = tempRoot();
-      const target = write(rootDir, `src/modules/User/index${source}`);
-      const filename = write(rootDir, "src/app/main.ts");
-      expect(resolveImport(`../modules/User/index${runtime}`, contextStub(rootDir), filename, options(rootDir)))
-        .toMatchObject({ status: "resolved", canonical: target });
-      const runtimeFile = write(rootDir, `src/modules/User/index${runtime}`);
-      expect(resolveExistingPath(runtimeFile)).toBe(runtimeFile);
-    },
-  );
+  it.each([
+    [".js", ".ts"],
+    [".js", ".tsx"],
+    [".jsx", ".tsx"],
+    [".mjs", ".mts"],
+    [".cjs", ".cts"],
+  ])("resolves runtime %s imports to TypeScript %s sources", (runtime, source) => {
+    const rootDir = tempRoot();
+    const target = write(rootDir, `src/modules/User/index${source}`);
+    const filename = write(rootDir, "src/app/main.ts");
+    expect(
+      resolveImport(`../modules/User/index${runtime}`, contextStub(rootDir), filename, options(rootDir)),
+    ).toMatchObject({ status: "resolved", canonical: target });
+    const runtimeFile = write(rootDir, `src/modules/User/index${runtime}`);
+    expect(resolveExistingPath(runtimeFile)).toBe(runtimeFile);
+  });
 
   it("resolveExistingPath finds index files under directories", () => {
     const rootDir = tempRoot();

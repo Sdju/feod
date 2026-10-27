@@ -96,14 +96,25 @@ describe("filesystem inventory", () => {
     write(rootDir, "src/app/main.js");
     write(rootDir, "src/modules/Broken/ui.js");
     fs.mkdirSync(path.join(rootDir, "src/modules/Hollow"), { recursive: true });
-    const config = createConfig({
-      modules: { requirePublicEntry: true, publicEntries: ["index.js"] },
-    }, { rootDir });
+    const config = createConfig(
+      {
+        modules: { requirePublicEntry: true, publicEntries: ["index.js"] },
+      },
+      { rootDir },
+    );
     const first = lint(config, rootDir, "src/app/main.js");
-    expect(first).toEqual(expect.arrayContaining([
-      expect.objectContaining({ messageId: "missingPublicEntry", message: expect.stringContaining("src/modules/Broken") }),
-      expect.objectContaining({ messageId: "missingPublicEntry", message: expect.stringContaining("src/modules/Hollow") }),
-    ]));
+    expect(first).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          messageId: "missingPublicEntry",
+          message: expect.stringContaining("src/modules/Broken"),
+        }),
+        expect.objectContaining({
+          messageId: "missingPublicEntry",
+          message: expect.stringContaining("src/modules/Hollow"),
+        }),
+      ]),
+    );
     expect(lint(config, rootDir, "src/modules/Broken/ui.js")).toEqual([]);
   });
 
@@ -113,9 +124,13 @@ describe("filesystem inventory", () => {
     write(rootDir, "src/modules/hub/_/core.js");
     write(rootDir, "src/modules/hub/good/index.js");
     write(rootDir, "src/modules/hub/bad/impl.js");
-    const config = createConfig({
-      modules: { requirePublicEntry: true, publicEntries: ["index.js"] }, transitModules: ["hub"],
-    }, { rootDir });
+    const config = createConfig(
+      {
+        modules: { requirePublicEntry: true, publicEntries: ["index.js"] },
+        transitModules: ["hub"],
+      },
+      { rootDir },
+    );
     const messages = lint(config, rootDir, "src/app/main.js").map(message => message.message);
     expect(messages).toHaveLength(1);
     expect(messages[0]).toContain("src/modules/hub/bad");
@@ -127,10 +142,12 @@ describe("filesystem inventory", () => {
     fs.mkdirSync(path.join(rootDir, "src/modules/utils"), { recursive: true });
     write(rootDir, "src/modules/shared/logo.png", "png");
     const config = createConfig({ modules: { forbiddenNames: ["utils", "shared"] } }, { rootDir });
-    expect(lint(config, rootDir, "src/app/main.js")).toEqual(expect.arrayContaining([
-      expect.objectContaining({ messageId: "forbiddenModuleName", message: expect.stringContaining("'utils'") }),
-      expect.objectContaining({ messageId: "forbiddenModuleName", message: expect.stringContaining("'shared'") }),
-    ]));
+    expect(lint(config, rootDir, "src/app/main.js")).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ messageId: "forbiddenModuleName", message: expect.stringContaining("'utils'") }),
+        expect.objectContaining({ messageId: "forbiddenModuleName", message: expect.stringContaining("'shared'") }),
+      ]),
+    );
   });
 
   it("reports uncovered inventory files when enabled", () => {
@@ -139,17 +156,28 @@ describe("filesystem inventory", () => {
     write(rootDir, "src/orphan/note.md", "x");
     const config = createConfig({ inventory: { uncovered: true } }, { rootDir });
     expect(lint(config, rootDir, "src/app/main.js")).toEqual([
-      expect.objectContaining({ messageId: "unknownInventoryFile", message: expect.stringContaining("src/orphan/note.md") }),
+      expect.objectContaining({
+        messageId: "unknownInventoryFile",
+        message: expect.stringContaining("src/orphan/note.md"),
+      }),
     ]);
   });
 
   it("keeps visited unknown-file diagnostics without filesystem scan by default", () => {
     const rootDir = tempRoot();
     write(rootDir, "src/orphan/note.js");
-    expect(lint([{
-      plugins: { "feod-structure": plugin },
-      rules: { "feod-structure/no-unknown-files": ["error", { rootDir }] },
-    }], rootDir, "src/orphan/note.js")).toEqual([expect.objectContaining({ messageId: "unknownFile" })]);
+    expect(
+      lint(
+        [
+          {
+            plugins: { "feod-structure": plugin },
+            rules: { "feod-structure/no-unknown-files": ["error", { rootDir }] },
+          },
+        ],
+        rootDir,
+        "src/orphan/note.js",
+      ),
+    ).toEqual([expect.objectContaining({ messageId: "unknownFile" })]);
   });
 
   it("keeps one cached inventory per options fingerprint", () => {

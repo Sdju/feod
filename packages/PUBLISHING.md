@@ -1,6 +1,6 @@
 # Publishing @o-feod packages
 
-Both packages use `.github/workflows/publish-npm-packages.yml` in `Sdju/feod`.
+The three packages (`@o-feod/config`, the ESLint and the Oxlint plugin) use `.github/workflows/publish-npm-packages.yml` in `Sdju/feod`.
 The workflow runs on GitHub-hosted runners with Node 24, npm 11 and OIDC
 (`id-token: write`). It does not use an npm token secret.
 
@@ -19,12 +19,14 @@ the following trusted publisher for **each** package on npmjs.com afterwards:
 | Environment | Leave empty |
 | Allowed actions | Allow direct `npm publish` |
 
-The trust relationships are configured for both packages. To recreate them
+The trust relationships are configured for the ESLint and Oxlint packages; `@o-feod/config` is new and needs its initial authenticated publish and trust setup first (the plugins depend on it, so it must be published before them). To recreate them
 with npm 11.15+ after an initial authenticated publication:
 
 ```sh
+npm trust github @o-feod/config --repo Sdju/feod --file publish-npm-packages.yml --allow-publish --yes
 npm trust github @o-feod/eslint-structure-plugin --repo Sdju/feod --file publish-npm-packages.yml --allow-publish --yes
 npm trust github @o-feod/oxlint-structure-plugin --repo Sdju/feod --file publish-npm-packages.yml --allow-publish --yes
+npm trust list @o-feod/config
 npm trust list @o-feod/eslint-structure-plugin
 npm trust list @o-feod/oxlint-structure-plugin
 ```
@@ -42,15 +44,15 @@ The workflow selects provenance automatically from the repository visibility.
 
 1. Update package versions and commit the release to `main`.
 2. Open **Actions → Publish npm packages (trusted publishing) → Run workflow**.
-3. Select `both`, `eslint` or `oxlint`. Start with `dry_run: true` to validate
+3. Select `both`, `config`, `eslint` or `oxlint`. Start with `dry_run: true` to validate
    the archives, then run with `dry_run: false` to publish.
 
-`both` publishes ESLint before Oxlint. Already published versions are skipped
+`both` publishes config, then ESLint, then Oxlint. Already published versions are skipped
 so the workflow can resume after a partial release. An existing version cannot
 be replaced; increment its version to publish updated contents.
 
 The pipeline builds and tests both packages, then publishes archives produced
-by `pnpm pack`. Packing converts Oxlint's `workspace:^` dependency into an npm
+by `pnpm pack`. Packing converts the `workspace:^` dependencies between packages into an npm
 version range. A dry run checks archive contents, but does not verify the OIDC
 trust relationship; only a real publish does that.
 

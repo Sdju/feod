@@ -30,33 +30,35 @@ const rule: Rule.RuleModule = {
   meta: {
     type: "problem",
     docs: { description: "Disallow value-import cycles between source files" },
-    schema: [{
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        enabled: { type: "boolean" },
-        rootDir: { type: "string" },
-        srcRoot: { type: "string" },
-        ignore: { oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }] },
-        layers: layerSetSchema,
-        layerDirs: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            app: { type: "string" },
-            pages: { type: "string" },
-            modules: { type: "string" },
-            common: { type: "string" },
-            global: { type: "string" },
+    schema: [
+      {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          enabled: { type: "boolean" },
+          rootDir: { type: "string" },
+          srcRoot: { type: "string" },
+          ignore: { oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }] },
+          layers: layerSetSchema,
+          layerDirs: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              app: { type: "string" },
+              pages: { type: "string" },
+              modules: { type: "string" },
+              common: { type: "string" },
+              global: { type: "string" },
+            },
           },
+          layerAliases: { type: "object", additionalProperties: { type: "string" } },
+          aliasPrefix: { type: "string" },
+          aliasRoot: { type: "string" },
+          singleFileModules: { type: "boolean" },
+          transitModules: { type: "array", items: { type: "string" } },
         },
-        layerAliases: { type: "object", additionalProperties: { type: "string" } },
-        aliasPrefix: { type: "string" },
-        aliasRoot: { type: "string" },
-        singleFileModules: { type: "boolean" },
-        transitModules: { type: "array", items: { type: "string" } },
       },
-    }],
+    ],
     messages: {
       fileCycle: "FEOD: file dependency cycle: {{cycle}}.",
     },

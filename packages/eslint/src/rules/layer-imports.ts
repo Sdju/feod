@@ -17,7 +17,6 @@ import {
   formatModuleName,
   moduleAccess,
   submodulePolicySchema,
-  type ModuleContext,
   type SubmodulePolicy,
   rootForPath,
   resolveImport,
@@ -65,11 +64,7 @@ function normalizeFilename(filename: string, rootDir: string) {
   return path.resolve(rootDir, filename);
 }
 
-function getLayerForPath(
-  filePath: string,
-  rootDir: string,
-  layers: readonly Layer[]
-) {
+function getLayerForPath(filePath: string, rootDir: string, layers: readonly Layer[]) {
   if (!filePath || !rootDir) return null;
   const relative = toPosix(path.relative(rootDir, filePath));
   for (const layer of layers) {
@@ -86,10 +81,7 @@ type ModulePagesInfo = {
   pagesRoot: string;
 };
 
-function getModulePagesInfo(
-  relativePath: string,
-  modulesDir: string
-): ModulePagesInfo | null {
+function getModulePagesInfo(relativePath: string, modulesDir: string): ModulePagesInfo | null {
   if (!relativePath.startsWith(`${modulesDir}/`)) return null;
   const rest = relativePath.slice(modulesDir.length + 1);
   if (!rest) return null;
@@ -127,33 +119,19 @@ function getModuleIndexName(relativePath: string, modulesDir: string) {
   return parts[0];
 }
 
-function isAllowedTransitPrivateImport(
-  importer: TransitInfo | null,
-  target: TransitInfo
-) {
+function isAllowedTransitPrivateImport(importer: TransitInfo | null, target: TransitInfo) {
   if (!importer) return false;
   if (importer.moduleName !== target.moduleName) return false;
   return importer.type === "submodule" || importer.type === "private";
 }
 
-function isSameTransitSubmodule(
-  importer: TransitInfo | null,
-  target: TransitInfo
-) {
+function isSameTransitSubmodule(importer: TransitInfo | null, target: TransitInfo) {
   if (!importer || importer.type !== "submodule") return false;
   if (target.type !== "submodule") return false;
-  return (
-    importer.moduleName === target.moduleName &&
-    importer.submoduleName === target.submoduleName
-  );
+  return importer.moduleName === target.moduleName && importer.submoduleName === target.submoduleName;
 }
 
-function reportInvalid(
-  context: Rule.RuleContext,
-  node: unknown,
-  messageId: string,
-  data: Record<string, string>
-) {
+function reportInvalid(context: Rule.RuleContext, node: unknown, messageId: string, data: Record<string, string>) {
   context.report({
     node: node as Rule.Node,
     messageId,
@@ -181,10 +159,7 @@ const rule: Rule.RuleModule = {
           aliasPrefix: { type: "string" },
           aliasRoot: { type: "string" },
           ignore: {
-            oneOf: [
-              { type: "string" },
-              { type: "array", items: { type: "string" } },
-            ],
+            oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
           },
           srcRoot: { type: "string" },
           layerDirs: {
@@ -215,26 +190,19 @@ const rule: Rule.RuleModule = {
     messages: {
       invalidGlobalLocalImport: "FEOD: global local imports must follow the '{{policy}}' policy.",
       privateSubmodule: "FEOD: submodule '{{toName}}' is private to its immediate parent.",
-      computedImport: "FEOD: computed {{loader}} specifiers are forbidden; use a static string or supported literal file URL.",
+      computedImport:
+        "FEOD: computed {{loader}} specifiers are forbidden; use a static string or supported literal file URL.",
       unresolvedImport: "FEOD: import '{{specifier}}' could not be resolved to an existing local file.",
       invalidRootImport: "FEOD: root '{{fromRoot}}' cannot import from '{{toRoot}}'.",
       crossRootPublicOnly: "FEOD: imports from root '{{toRoot}}' must use a public top-level module API.",
-      invalidLayerImport:
-        "FEOD: '{{fromLayer}}' cannot import from '{{toLayer}}'.",
-      invalidGlobalImport:
-        "FEOD: '{{fromLayer}}' cannot import from 'global'.",
-      invalidModuleImport:
-        "FEOD: '{{fromName}}' can only import public API of '{{toName}}'.",
-      pagesImportRestricted:
-        "FEOD: '{{fromLayer}}' cannot import from 'pages'. Only 'app' can.",
-      appImportRestricted:
-        "FEOD: '{{fromLayer}}' cannot import from 'app'.",
-      invalidTransitSubmoduleImport:
-        "FEOD: transit submodules can only be imported via public API.",
-      invalidTransitPrivateImport:
-        "FEOD: private core of transit module is restricted to its submodules.",
-      modulePagesImportRestricted:
-        "FEOD: module pages can only be imported by the module index.",
+      invalidLayerImport: "FEOD: '{{fromLayer}}' cannot import from '{{toLayer}}'.",
+      invalidGlobalImport: "FEOD: '{{fromLayer}}' cannot import from 'global'.",
+      invalidModuleImport: "FEOD: '{{fromName}}' can only import public API of '{{toName}}'.",
+      pagesImportRestricted: "FEOD: '{{fromLayer}}' cannot import from 'pages'. Only 'app' can.",
+      appImportRestricted: "FEOD: '{{fromLayer}}' cannot import from 'app'.",
+      invalidTransitSubmoduleImport: "FEOD: transit submodules can only be imported via public API.",
+      invalidTransitPrivateImport: "FEOD: private core of transit module is restricted to its submodules.",
+      modulePagesImportRestricted: "FEOD: module pages can only be imported by the module index.",
     },
   },
   create(context: Rule.RuleContext) {
@@ -248,27 +216,20 @@ const rule: Rule.RuleModule = {
     const layers = getLayers(srcRoot, options.layerDirs, options.layers);
     const filename = normalizeFilename(getFilename(context), rootDir);
     const isIgnored = createIgnoreMatcher(options.ignore, rootDir);
-    const layerCache = createPathMemoizer((filePath) =>
-      getLayerForPath(filePath, rootDir, layers)
-    );
-    const moduleCache = createPathMemoizer((filePath) =>
-      layers.some(layer => layer.role === "modules") ? getModuleContext(
-        filePath,
-        rootDir,
-        layerDirs.modules,
-        Boolean(options.singleFileModules)
-      ) : null
+    const layerCache = createPathMemoizer(filePath => getLayerForPath(filePath, rootDir, layers));
+    const moduleCache = createPathMemoizer(filePath =>
+      layers.some(layer => layer.role === "modules")
+        ? getModuleContext(filePath, rootDir, layerDirs.modules, Boolean(options.singleFileModules))
+        : null,
     );
     const transitModules = new Set(options.transitModules || []);
-    const transitCache = createPathMemoizer((filePath) =>
-      layers.some(layer => layer.role === "modules") ? getTransitModuleInfo(filePath, layerDirs.modules, transitModules) : null
+    const transitCache = createPathMemoizer(filePath =>
+      layers.some(layer => layer.role === "modules")
+        ? getTransitModuleInfo(filePath, layerDirs.modules, transitModules)
+        : null,
     );
-    const modulePagesCache = createPathMemoizer((filePath) =>
-      getModulePagesInfo(filePath, layerDirs.modules)
-    );
-    const moduleIndexCache = createPathMemoizer((filePath) =>
-      getModuleIndexName(filePath, layerDirs.modules)
-    );
+    const modulePagesCache = createPathMemoizer(filePath => getModulePagesInfo(filePath, layerDirs.modules));
+    const moduleIndexCache = createPathMemoizer(filePath => getModuleIndexName(filePath, layerDirs.modules));
 
     if (!filename || isIgnored(filename)) {
       return {};
@@ -288,11 +249,12 @@ const rule: Rule.RuleModule = {
         reportInvalid(context, node, "unresolvedImport", { specifier: sourceValue });
         return;
       }
-      const resolved = resolution.status === "resolved"
-        ? resolution.canonical
-        : resolution.status === "unresolved" && resolution.candidate
-          ? resolution.candidate
-          : null;
+      const resolved =
+        resolution.status === "resolved"
+          ? resolution.canonical
+          : resolution.status === "unresolved" && resolution.candidate
+            ? resolution.candidate
+            : null;
       if (!resolved) return;
       if (isIgnored(resolved)) return;
 
@@ -302,8 +264,10 @@ const rule: Rule.RuleModule = {
       const globalPolicy = options.globals?.localImports ?? "allow";
       if (fromLayer?.role === "global" && (globalPolicy === "forbid" || (globalPolicy === "type-only" && !typeOnly))) {
         const relative = path.relative(rootDir, resolved);
-        const local = !toPosix(resolved).split("/").includes("node_modules") &&
-          (sourceValue.startsWith(".") || path.isAbsolute(sourceValue) ||
+        const local =
+          !toPosix(resolved).split("/").includes("node_modules") &&
+          (sourceValue.startsWith(".") ||
+            path.isAbsolute(sourceValue) ||
             (relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative)));
         if (local) {
           reportInvalid(context, node, "invalidGlobalLocalImport", { policy: globalPolicy });
@@ -326,10 +290,16 @@ const rule: Rule.RuleModule = {
           const relative = toPosix(path.relative(rootDir, resolved));
           const transit = getTransitModuleInfo(relative, dirs.modules, new Set(target.transitModules ?? []));
           const publicApi = transit
-            ? transit.type === "submodule" && isPublicTransitSubmoduleImport(resolved, transit, rootDir, target.publicEntries)
-            : module && !module.isSubmodule && (module.isSingleFile || isPublicModuleImport(resolved, module, rootDir, target.publicEntries));
-          if (layer?.role !== "modules" || !publicApi ||
-              (target.modulePages && getModulePagesInfo(relative, dirs.modules))) {
+            ? transit.type === "submodule" &&
+              isPublicTransitSubmoduleImport(resolved, transit, rootDir, target.publicEntries)
+            : module &&
+              !module.isSubmodule &&
+              (module.isSingleFile || isPublicModuleImport(resolved, module, rootDir, target.publicEntries));
+          if (
+            layer?.role !== "modules" ||
+            !publicApi ||
+            (target.modulePages && getModulePagesInfo(relative, dirs.modules))
+          ) {
             reportInvalid(context, node, "crossRootPublicOnly", { toRoot });
           } else if (fromLayer?.role === "common") {
             reportInvalid(context, node, "invalidLayerImport", { fromLayer: fromLayer.name, toLayer: layer.name });
@@ -341,16 +311,13 @@ const rule: Rule.RuleModule = {
       if (!fromLayer || !toLayer) return;
 
       const pageLayer = layers.find(layer => layer.role === "pages");
-      const modulePagesEnabled = Boolean(options.modulePages) && Boolean(pageLayer) && layers.some(layer => layer.role === "modules");
+      const modulePagesEnabled =
+        Boolean(options.modulePages) && Boolean(pageLayer) && layers.some(layer => layer.role === "modules");
       const fromRelative = toPosix(path.relative(rootDir, filename));
       const toRelative = toPosix(path.relative(rootDir, resolved));
-      const fromModulePages = modulePagesEnabled
-        ? modulePagesCache.get(fromRelative)
-        : null;
-      const toModulePages = modulePagesEnabled
-        ? modulePagesCache.get(toRelative)
-        : null;
-      const fromLayerName = fromModulePages ? pageLayer?.name ?? fromLayer.name : fromLayer.name;
+      const fromModulePages = modulePagesEnabled ? modulePagesCache.get(fromRelative) : null;
+      const toModulePages = modulePagesEnabled ? modulePagesCache.get(toRelative) : null;
+      const fromLayerName = fromModulePages ? (pageLayer?.name ?? fromLayer.name) : fromLayer.name;
       const allowed = (fromModulePages ? pageLayer : fromLayer)?.imports ?? [];
 
       if (toLayer.role === "pages" && !allowed.includes(toLayer.name)) {
@@ -428,9 +395,13 @@ const rule: Rule.RuleModule = {
       }
     }
 
-    return importListeners(context, validateImport, options.imports?.computed === "forbid"
-      ? (node, loader) => reportInvalid(context, node, "computedImport", { loader })
-      : undefined);
+    return importListeners(
+      context,
+      validateImport,
+      options.imports?.computed === "forbid"
+        ? (node, loader) => reportInvalid(context, node, "computedImport", { loader })
+        : undefined,
+    );
   },
 };
 

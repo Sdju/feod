@@ -29,21 +29,23 @@ const rule: Rule.RuleModule = {
   meta: {
     type: "problem",
     docs: { description: "Require a public entry file for each module owner discovered on disk" },
-    schema: [{
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        requirePublicEntry: { type: "boolean" },
-        rootDir: { type: "string" },
-        srcRoot: { type: "string" },
-        ignore: { oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }] },
-        layers: layerSetSchema,
-        layerDirs: { type: "object", additionalProperties: false, properties: { modules: { type: "string" } } },
-        singleFileModules: { type: "boolean" },
-        transitModules: { type: "array", items: { type: "string" } },
-        publicEntries: publicEntriesSchema,
+    schema: [
+      {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          requirePublicEntry: { type: "boolean" },
+          rootDir: { type: "string" },
+          srcRoot: { type: "string" },
+          ignore: { oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }] },
+          layers: layerSetSchema,
+          layerDirs: { type: "object", additionalProperties: false, properties: { modules: { type: "string" } } },
+          singleFileModules: { type: "boolean" },
+          transitModules: { type: "array", items: { type: "string" } },
+          publicEntries: publicEntriesSchema,
+        },
       },
-    }],
+    ],
     messages: {
       missingPublicEntry: "FEOD: module '{{module}}' is missing a public entry ({{expected}}).",
     },
@@ -67,13 +69,15 @@ const rule: Rule.RuleModule = {
       transitModules: options.transitModules,
       publicEntries: options.publicEntries,
     });
-    const expected = options.publicEntries?.length
-      ? options.publicEntries.join(" | ")
-      : "index.*";
+    const expected = options.publicEntries?.length ? options.publicEntries.join(" | ") : "index.*";
     const transit = new Set(options.transitModules);
     // A transit container has no public API of its own; its submodules carry the entries.
-    const missing = inventory.modules.filter(module => module.kind !== "single-file" && !module.hasPublicEntry
-      && !(module.depth === 0 && transit.has(module.moduleName)));
+    const missing = inventory.modules.filter(
+      module =>
+        module.kind !== "single-file" &&
+        !module.hasPublicEntry &&
+        !(module.depth === 0 && transit.has(module.moduleName)),
+    );
     if (!missing.length) return {};
 
     return {

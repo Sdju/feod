@@ -1,0 +1,56 @@
+name: Verify skill
+
+on:
+  push:
+    paths:
+      - 'skill/**'
+      - 'skills/**'
+      - 'packages/skill-cli/**'
+      - 'packages/config/**'
+      - 'scripts/pack-skill.mjs'
+      - 'vite.config.ts'
+      - 'scripts/smoke-skill.mjs'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/verify-skill.yml'
+  pull_request:
+    paths:
+      - 'skill/**'
+      - 'skills/**'
+      - 'packages/skill-cli/**'
+      - 'packages/config/**'
+      - 'scripts/pack-skill.mjs'
+      - 'vite.config.ts'
+      - 'scripts/smoke-skill.mjs'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/verify-skill.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Format, lint and type check (Vite+)
+        run: pnpm run check
+      - name: Build the config core, typecheck and test skill-cli, check that skills/feod is up to date
+        run: |
+          pnpm --filter @o-feod/config build
+          pnpm run skill:verify
+
+  # The delivered skill promises a bare Node: run the committed skills/feod on the minimum version.
+  smoke-min-node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19'
+      - run: node scripts/smoke-skill.mjs

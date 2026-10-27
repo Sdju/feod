@@ -1,4 +1,4 @@
-# FEOD — scaffold examples
+# FEOD — Vue SPA templates
 
 ## Vue 3 + Vite + TypeScript — minimal start
 
@@ -274,7 +274,7 @@ import { analyticsNotify } from '../integrations/analytics'
 ## package.json feod section
 
 Requires a plugin exporting `configFromProject` and an explicit loader call.
-For npm `0.1.0` (before the helpers), use per-rule options from [lint-plugins.md](lint-plugins.md).
+For npm `0.1.0` (before the helpers), use per-rule options from [lint.md](../lint.md).
 
 ```json
 {

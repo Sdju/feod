@@ -13,9 +13,17 @@
     "test:e2e:example": "pnpm --filter @open-feod/example-vue-spa test:e2e",
     "lint:example": "pnpm --filter @open-feod/example-vue-spa lint",
     "install:all": "pnpm install",
-    "clean": "echo 'Удалите node_modules вручную или используйте: pnpm store prune'"
+    "clean": "echo 'Удалите node_modules вручную или используйте: pnpm store prune'",
+    "skill:pack": "node scripts/pack-skill.mjs",
+    "skill:check": "node scripts/pack-skill.mjs --check",
+    "skill:smoke": "node scripts/smoke-skill.mjs",
+    "skill:verify": "pnpm --filter @open-feod/skill-cli typecheck && pnpm --filter @open-feod/skill-cli test && pnpm run skill:check && pnpm run skill:smoke",
+    "check": "vp check",
+    "fmt": "vp fmt",
+    "lint": "vp lint"
   },
   "devDependencies": {
+    "vite-plus": "catalog:",
     "vitest": "catalog:"
   }
 }

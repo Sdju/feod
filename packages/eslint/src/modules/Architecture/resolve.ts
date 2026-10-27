@@ -7,19 +7,24 @@ import type { LayerAliases } from "./layers.js";
 import { rootForPath, type RuleRoots } from "./roots.js";
 
 // Native ESM sees the CommonJS exports object; bundlers may unwrap its default.
-const eslintResolve = typeof resolverModule === "function"
-  ? resolverModule
-  : (resolverModule as unknown as { default: typeof resolverModule }).default;
+const eslintResolve =
+  typeof resolverModule === "function"
+    ? resolverModule
+    : (resolverModule as unknown as { default: typeof resolverModule }).default;
 
-const builtins = new Set([
-  ...builtinModules,
-  ...builtinModules.map(name => `node:${name}`),
-]);
+const builtins = new Set([...builtinModules, ...builtinModules.map(name => `node:${name}`)]);
 
 const FILE_EXTENSIONS = [".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs", ".vue"];
 const INDEX_FILES = [
-  "index.ts", "index.tsx", "index.mts", "index.cts",
-  "index.js", "index.jsx", "index.mjs", "index.cjs", "index.vue",
+  "index.ts",
+  "index.tsx",
+  "index.mts",
+  "index.cts",
+  "index.js",
+  "index.jsx",
+  "index.mjs",
+  "index.cjs",
+  "index.vue",
 ];
 
 export type ResolveOptions = {
@@ -34,33 +39,33 @@ export type ResolveOptions = {
 
 export type ResolveResult =
   | {
-    status: "resolved";
-    path: string;
-    canonical: string;
-    exists: boolean;
-    via: "eslint" | "alias" | "relative" | "prefix";
-    query?: string;
-    hash?: string;
-  }
+      status: "resolved";
+      path: string;
+      canonical: string;
+      exists: boolean;
+      via: "eslint" | "alias" | "relative" | "prefix";
+      query?: string;
+      hash?: string;
+    }
   | {
-    status: "external";
-    via: "builtin" | "package" | "node_modules";
-    path?: string;
-    query?: string;
-    hash?: string;
-  }
+      status: "external";
+      via: "builtin" | "package" | "node_modules";
+      path?: string;
+      query?: string;
+      hash?: string;
+    }
   | {
-    status: "unresolved";
-    specifier: string;
-    candidate?: string;
-    query?: string;
-    hash?: string;
-  }
+      status: "unresolved";
+      specifier: string;
+      candidate?: string;
+      query?: string;
+      hash?: string;
+    }
   | {
-    status: "unsupported";
-    reason: "non-string" | "virtual" | "remote" | "data";
-    specifier?: string;
-  };
+      status: "unsupported";
+      reason: "non-string" | "virtual" | "remote" | "data";
+      specifier?: string;
+    };
 
 type SpecifierParts = {
   bare: string;
@@ -135,7 +140,10 @@ export function resolveExistingPath(candidate: string): string | null {
   }
   // ESM TypeScript sources spell runtime extensions in their imports.
   const sourceExtensions: Record<string, string[]> = {
-    ".js": [".ts", ".tsx"], ".jsx": [".tsx"], ".mjs": [".mts"], ".cjs": [".cts"],
+    ".js": [".ts", ".tsx"],
+    ".jsx": [".tsx"],
+    ".mjs": [".mts"],
+    ".cjs": [".cts"],
   };
   const runtimeExtension = path.extname(candidate);
   for (const extension of sourceExtensions[runtimeExtension] ?? []) {
@@ -218,9 +226,7 @@ function finishTarget(
   if (looksLikeNodeModules(absolute)) {
     return { status: "external", via: "node_modules", path: absolute, query: parts.query, hash: parts.hash };
   }
-  const roots = context
-    ? (context.options[0] as { roots?: RuleRoots } | undefined)?.roots
-    : undefined;
+  const roots = context ? (context.options[0] as { roots?: RuleRoots } | undefined)?.roots : undefined;
   if (roots && !options.crossRoot) {
     const from = rootForPath(filename, options.rootDir, roots);
     const to = rootForPath(absolute, options.rootDir, roots);
@@ -244,22 +250,30 @@ function resolveWithFallbacks(
 ): ResolveResult {
   const aliasResolved = resolveLayerAlias(parts.bare, options.layerAliases);
   if (aliasResolved) {
-    const absolute = path.isAbsolute(aliasResolved)
-      ? aliasResolved
-      : path.join(options.rootDir, aliasResolved);
+    const absolute = path.isAbsolute(aliasResolved) ? aliasResolved : path.join(options.rootDir, aliasResolved);
     return finishTarget(absolute, "alias", parts, options, filename, context);
   }
 
   if (parts.bare.startsWith(".")) {
-    return finishTarget(path.resolve(path.dirname(filename), parts.bare), "relative", parts, options, filename, context);
+    return finishTarget(
+      path.resolve(path.dirname(filename), parts.bare),
+      "relative",
+      parts,
+      options,
+      filename,
+      context,
+    );
   }
 
   if (parts.bare.startsWith(`${options.aliasPrefix}/`)) {
-    return finishTarget(path.join(
-      options.rootDir,
-      options.aliasRoot,
-      parts.bare.slice(options.aliasPrefix.length + 1),
-    ), "prefix", parts, options, filename, context);
+    return finishTarget(
+      path.join(options.rootDir, options.aliasRoot, parts.bare.slice(options.aliasPrefix.length + 1)),
+      "prefix",
+      parts,
+      options,
+      filename,
+      context,
+    );
   }
 
   if (parts.bare.startsWith(`${options.srcRoot}/`)) {
@@ -308,11 +322,7 @@ export function resolveImport(
 }
 
 /** Path resolution for project scans without an ESLint rule context (graph / CLI). */
-export function resolveImportOffline(
-  sourceValue: unknown,
-  filename: string,
-  options: ResolveOptions,
-): ResolveResult {
+export function resolveImportOffline(sourceValue: unknown, filename: string, options: ResolveOptions): ResolveResult {
   if (!sourceValue || typeof sourceValue !== "string") {
     return { status: "unsupported", reason: "non-string" };
   }

@@ -9,12 +9,13 @@ on:
         default: true
         type: boolean
       package:
-        description: Package to publish (both publishes ESLint before Oxlint)
+        description: Package to publish (both publishes config, then ESLint, then Oxlint)
         required: true
         default: both
         type: choice
         options:
           - both
+          - config
           - eslint
           - oxlint
 
@@ -50,6 +51,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build and typecheck the config core
+        run: |
+          pnpm --filter @o-feod/config build
+          pnpm --filter @o-feod/config typecheck
+          pnpm --filter @o-feod/config test
 
       - name: Build, self-lint and test Oxlint
         run: pnpm --filter @o-feod/oxlint-structure-plugin test

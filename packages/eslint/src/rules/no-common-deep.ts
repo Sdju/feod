@@ -2,11 +2,7 @@ import { createIgnoreMatcher } from "../common/ignore.js";
 import path from "node:path";
 import type { Rule } from "eslint";
 
-import {
-  getFilename,
-  type LayerDirs,
-  getLayerDirs,
-} from "../modules/Architecture/index.js";
+import { getFilename, type LayerDirs, getLayerDirs } from "../modules/Architecture/index.js";
 
 type Options = {
   rootDir?: string;
@@ -47,10 +43,7 @@ const rule: Rule.RuleModule = {
           rootDir: { type: "string" },
           maxDepth: { type: "number", minimum: 0 },
           ignore: {
-            oneOf: [
-              { type: "string" },
-              { type: "array", items: { type: "string" } },
-            ],
+            oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
           },
           srcRoot: { type: "string" },
           layerDirs: {
@@ -65,8 +58,7 @@ const rule: Rule.RuleModule = {
       },
     ],
     messages: {
-      commonTooDeep:
-        "FEOD: common nesting exceeds maxDepth={{maxDepth}}.",
+      commonTooDeep: "FEOD: common nesting exceeds maxDepth={{maxDepth}}.",
     },
   },
   create(context) {

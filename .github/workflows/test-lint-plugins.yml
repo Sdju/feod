@@ -3,6 +3,7 @@ name: Test lint plugins
 on:
   push:
     paths:
+      - 'packages/config/**'
       - 'packages/eslint/**'
       - 'packages/oxlint/**'
       - 'pnpm-lock.yaml'
@@ -16,6 +17,7 @@ on:
       - 'docs/linting/**'
   pull_request:
     paths:
+      - 'packages/config/**'
       - 'packages/eslint/**'
       - 'packages/oxlint/**'
       - 'pnpm-lock.yaml'

@@ -44,10 +44,7 @@ const rule: Rule.RuleModule = {
           aliasPrefix: { type: "string" },
           aliasRoot: { type: "string" },
           ignore: {
-            oneOf: [
-              { type: "string" },
-              { type: "array", items: { type: "string" } },
-            ],
+            oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
           },
           srcRoot: { type: "string" },
           layerDirs: {
@@ -66,8 +63,7 @@ const rule: Rule.RuleModule = {
       },
     ],
     messages: {
-      noSubmoduleOfSubmodule:
-        "FEOD: deep submodules are accessible only within their owner or immediate parent/child.",
+      noSubmoduleOfSubmodule: "FEOD: deep submodules are accessible only within their owner or immediate parent/child.",
     },
   },
   create(context) {
@@ -85,7 +81,7 @@ const rule: Rule.RuleModule = {
       return {};
     }
 
-    const moduleCache = createPathMemoizer((file) => getModuleContext(file, rootDir, layerDirs.modules));
+    const moduleCache = createPathMemoizer(file => getModuleContext(file, rootDir, layerDirs.modules));
     const own = moduleCache.get(filename);
 
     function validateImport(node: unknown, sourceValue: unknown) {
@@ -101,8 +97,13 @@ const rule: Rule.RuleModule = {
       if (isIgnored(resolved)) return;
 
       const target = moduleCache.get(resolved);
-      if (target && target.depth > 1 && own?.ownerRoot !== target.ownerRoot &&
-          own?.ownerRoot !== target.parentRoot && own?.parentRoot !== target.ownerRoot) {
+      if (
+        target &&
+        target.depth > 1 &&
+        own?.ownerRoot !== target.ownerRoot &&
+        own?.ownerRoot !== target.parentRoot &&
+        own?.parentRoot !== target.ownerRoot
+      ) {
         context.report({
           node: node as Rule.Node,
           messageId: "noSubmoduleOfSubmodule",

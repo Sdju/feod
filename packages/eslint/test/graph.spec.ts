@@ -43,26 +43,42 @@ describe("module dependency cycles", () => {
       const x = require('./e');
       typeof import('./f');
     `);
-    expect(deps.filter(item => !item.typeOnly).map(item => item.specifier).sort()).toEqual([
-      "./b", "./d", "./e",
-    ]);
-    expect(deps.filter(item => item.typeOnly).map(item => item.specifier).sort()).toEqual([
-      "./a", "./c", "./f",
-    ]);
+    expect(
+      deps
+        .filter(item => !item.typeOnly)
+        .map(item => item.specifier)
+        .sort(),
+    ).toEqual(["./b", "./d", "./e"]);
+    expect(
+      deps
+        .filter(item => item.typeOnly)
+        .map(item => item.specifier)
+        .sort(),
+    ).toEqual(["./a", "./c", "./f"]);
   });
 
   it("detects parent-child value cycles and ignores type-only back-edges", () => {
     const rootDir = tempRoot();
     write(rootDir, "src/app/main.js", "export {};\n");
-    write(rootDir, "src/modules/Parent/index.js", 'import { child } from "./modules/Child/index.js"; export const parent = child;\n');
-    write(rootDir, "src/modules/Parent/modules/Child/index.js", 'import { parent } from "../../index.js"; export const child = parent;\n');
-
-    const cyclic = buildModuleGraph({ rootDir, srcRoot: "src" });
-    expect(cyclic.cycles.map(cycle => cycle.labels.join(" -> "))).toContain(
-      "Parent -> Parent/modules/Child -> Parent",
+    write(
+      rootDir,
+      "src/modules/Parent/index.js",
+      'import { child } from "./modules/Child/index.js"; export const parent = child;\n',
+    );
+    write(
+      rootDir,
+      "src/modules/Parent/modules/Child/index.js",
+      'import { parent } from "../../index.js"; export const child = parent;\n',
     );
 
-    write(rootDir, "src/modules/Parent/modules/Child/index.js", 'import type { parent } from "../../index.js"; export const child = "ok";\n');
+    const cyclic = buildModuleGraph({ rootDir, srcRoot: "src" });
+    expect(cyclic.cycles.map(cycle => cycle.labels.join(" -> "))).toContain("Parent -> Parent/modules/Child -> Parent");
+
+    write(
+      rootDir,
+      "src/modules/Parent/modules/Child/index.js",
+      'import type { parent } from "../../index.js"; export const child = "ok";\n',
+    );
     clearGraphState();
     clearInventoryState();
     const acyclic = buildModuleGraph({ rootDir, srcRoot: "src" });
@@ -74,9 +90,17 @@ describe("module dependency cycles", () => {
     write(rootDir, "src/app/main.js", "export {};\n");
     write(rootDir, "src/modules/A/index.js", 'import { b } from "../B/index.js"; export const a = b;\n');
     write(rootDir, "src/modules/B/index.js", 'import type { a } from "../A/index.js"; export const b = 1;\n');
-    write(rootDir, "src/modules/Parent/index.js", 'export const parent = 1;\n');
-    write(rootDir, "src/modules/Parent/modules/Child/index.js", 'import type { parent } from "../../index.js"; export const child = 1;\n');
-    write(rootDir, "src/modules/Parent/other.js", 'import { child } from "./modules/Child/index.js"; export const other = child;\n');
+    write(rootDir, "src/modules/Parent/index.js", "export const parent = 1;\n");
+    write(
+      rootDir,
+      "src/modules/Parent/modules/Child/index.js",
+      'import type { parent } from "../../index.js"; export const child = 1;\n',
+    );
+    write(
+      rootDir,
+      "src/modules/Parent/other.js",
+      'import { child } from "./modules/Child/index.js"; export const other = child;\n',
+    );
 
     expect(buildModuleGraph({ rootDir, srcRoot: "src" }).cycles).toEqual([]);
     clearGraphState();
@@ -100,9 +124,11 @@ describe("module dependency cycles", () => {
         message: expect.stringMatching(/A -> B -> A|B -> A -> B/),
       }),
     ]);
-    expect(new Linter({ cwd: rootDir }).verify("export {};", [config], {
-      filename: path.join(rootDir, "src/modules/A/index.js"),
-    })).toEqual([]);
+    expect(
+      new Linter({ cwd: rootDir }).verify("export {};", [config], {
+        filename: path.join(rootDir, "src/modules/A/index.js"),
+      }),
+    ).toEqual([]);
   });
 });
 

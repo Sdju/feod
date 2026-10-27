@@ -7,25 +7,22 @@ source layout, framework parsers, Node version and working directory. Resolve th
 installed package rather than assuming workspace source equals an npm release.
 Use its README, exports and declarations to choose configuration APIs.
 
-Registry snapshot verified on 2026-10-26 against npm metadata:
-
-| Package | npm latest | Exports in that release | Runtime |
-| --- | --- | --- | --- |
-| `@o-feod/eslint-structure-plugin` | `0.1.5` | root: plugin, `rules`, `configs`, `createConfig`, `configFromProject`, loader; `/presets` | Node >=18 |
-| `@o-feod/oxlint-structure-plugin` | `0.1.5` | root: plugin, `rules`, loader; `/configs`: presets, `createConfig`, `configFromProject`; `/presets` | Node ^20.19.0 or >=22.12.0; Oxlint ^1.86.0 |
-
-Both have a `bootstrap` dist-tag; normal installs use `latest`. Use the
-`@o-feod` scope for both packages. Refresh these facts when installing or
-upgrading; this is a dated snapshot.
+Packages (both under the `@o-feod` scope, namespace `feod-structure/*`):
+`@o-feod/eslint-structure-plugin` and `@o-feod/oxlint-structure-plugin`.
+Exports and engines differ between releases: always check the real ones
+instead of relying on memory of a version.
 
 ```sh
 npm view @o-feod/eslint-structure-plugin version dist-tags exports engines --json
 npm view @o-feod/oxlint-structure-plugin version dist-tags exports engines peerDependencies --json
 ```
 
+Normal installs use `latest` (a `bootstrap` dist-tag also exists). Known boundary:
+project configuration helpers (`createConfig`, `configFromProject`, loader) exist
+from `0.1.5`; `0.1.0` lacks them and its static presets do not read project JSON.
+
 Primary package pages: [ESLint](https://www.npmjs.com/package/@o-feod/eslint-structure-plugin),
 [Oxlint](https://www.npmjs.com/package/@o-feod/oxlint-structure-plugin).
-Project configuration helpers exist from `0.1.5`; npm `0.1.0` lacks them.
 Do not offer those APIs to a consumer until its resolved exports support them. If the registry is unavailable, report that limitation and use installed
 artifacts without claiming they are npm latest.
 
@@ -144,7 +141,7 @@ reads only that root, defaults to cwd, validates fields and rejects conflicting
 sources. `createConfig(config, { rootDir, preset })` validates an inline object.
 Static presets preserve their behavior and never automatically load this JSON.
 
-Supported project fields in `packages/eslint/src/config/feod.schema.json`:
+Supported project fields in `packages/config/src/modules/ProjectConfig/feod.schema.json`:
 `$schema`, `srcRoot`, `aliasPrefix`, `aliasRoot`, `layerDirs`, `layerAliases`,
 `ignore`, `common.maxDepth`, `transitModules`, `singleFileModules`, `modulePages`,
 `levels`, `globals`, `modules` (including `publicEntries`, `forbiddenNames`,
@@ -156,7 +153,7 @@ global directory is `global`; configure `globals` explicitly.
 
 `common.allowIndex`, `modules.allowDeepImports`, `modules.publicEntry`,
 `pages.useFileBasedRouting`, `pages.privateModulesPrefix` are not supported by
-this schema. Record such architectural choices in the skill/profile; do not
+this schema. Record such architectural choices in `feod.profile.md`; do not
 invent options to express them. Verify rule capabilities before relaxing a policy.
 
 ## Rules and useful limits
@@ -226,7 +223,7 @@ native Oxlint diagnostics from the FEOD namespace.
 
 - Shared logic: `packages/eslint/src/rules/`, `src/support/{resolve,layers,context,cache,ignore}.ts`.
 - Presets/registration: `packages/eslint/src/{index.ts,config/recommended.ts,config/strict.ts}`.
-- Project API/schema: `packages/eslint/src/config/{project.ts,feod.schema.json}`.
+- Project config core (schema, loader, normalization, layer sets): `packages/config/src/modules/{ProjectConfig,Policies,Layers}`; rule options mapping: `packages/eslint/src/modules/ProjectConfig/`.
 - Oxlint adapter: `packages/oxlint/src/{index.ts,configs.ts}`; keep rule implementations
   shared instead of copying ESLint rules into Oxlint.
 - Regression suites: `packages/eslint/test/`, `packages/oxlint/test/{integration,project-config}.spec.ts`.

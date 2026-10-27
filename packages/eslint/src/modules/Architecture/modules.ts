@@ -1,13 +1,11 @@
 import path from "node:path";
 
-export type SubmodulePolicy = {
-  visibility?: "public" | "parent-only";
-  parentImports?: "public" | "implementation";
-  childImportsParent?: "public" | "implementation";
-};
+import type { SubmodulePolicy } from "@o-feod/config";
+export type { SubmodulePolicy };
 
 export const submodulePolicySchema = {
-  type: "object", additionalProperties: false,
+  type: "object",
+  additionalProperties: false,
   properties: {
     visibility: { enum: ["public", "parent-only"], default: "public" },
     parentImports: { enum: ["public", "implementation"], default: "public" },
@@ -27,7 +25,12 @@ export type ModuleContext = {
   depth: number;
 };
 
-export function getModuleContext(filePath: string, rootDir: string, modulesDir: string, allowSingleFile = false): ModuleContext | null {
+export function getModuleContext(
+  filePath: string,
+  rootDir: string,
+  modulesDir: string,
+  allowSingleFile = false,
+): ModuleContext | null {
   const relative = path.relative(rootDir, filePath).replace(/\\/g, "/");
   const prefix = `${modulesDir}/`;
   if (!relative.startsWith(prefix)) return null;
@@ -37,8 +40,14 @@ export function getModuleContext(filePath: string, rootDir: string, modulesDir: 
   if (parts.length === 1 && path.posix.extname(moduleName)) {
     if (!allowSingleFile) return null;
     const ownerRoot = `${modulesDir}/${moduleName}`;
-    return { moduleName: path.posix.parse(moduleName).name, isSubmodule: false, isSingleFile: true,
-      moduleRoot: ownerRoot, ownerRoot, depth: 0 };
+    return {
+      moduleName: path.posix.parse(moduleName).name,
+      isSubmodule: false,
+      isSingleFile: true,
+      moduleRoot: ownerRoot,
+      ownerRoot,
+      depth: 0,
+    };
   }
   const moduleRoot = `${modulesDir}/${moduleName}`;
   let ownerRoot = moduleRoot;
@@ -49,18 +58,32 @@ export function getModuleContext(filePath: string, rootDir: string, modulesDir: 
     ownerRoot += `/modules/${parts[cursor + 1]}`;
     depth += 1;
   }
-  return { moduleName, isSingleFile: false, moduleRoot, ownerRoot, parentRoot, depth,
-    isSubmodule: depth > 0, submoduleRoot: depth ? ownerRoot : undefined,
-    submoduleName: depth ? ownerRoot.slice(moduleRoot.length + "/modules/".length) : undefined };
+  return {
+    moduleName,
+    isSingleFile: false,
+    moduleRoot,
+    ownerRoot,
+    parentRoot,
+    depth,
+    isSubmodule: depth > 0,
+    submoduleRoot: depth ? ownerRoot : undefined,
+    submoduleName: depth ? ownerRoot.slice(moduleRoot.length + "/modules/".length) : undefined,
+  };
 }
 
 export const publicEntriesSchema = {
-  type: "array", uniqueItems: true,
+  type: "array",
+  uniqueItems: true,
   items: { type: "string", minLength: 1, pattern: "^(?!\\.{1,2}$)[^/\\\\*?\\[\\]{}]+$" },
 };
 
 /** Empty entries preserve index.* matching; directory shorthand stays supported. */
-export function isPublicEntryImport(resolvedPath: string, ownerRoot: string, rootDir: string, entries: readonly string[] = []) {
+export function isPublicEntryImport(
+  resolvedPath: string,
+  ownerRoot: string,
+  rootDir: string,
+  entries: readonly string[] = [],
+) {
   const root = path.join(rootDir, ownerRoot);
   const normalized = path.normalize(resolvedPath);
   if (normalized === root) return true;
@@ -69,7 +92,12 @@ export function isPublicEntryImport(resolvedPath: string, ownerRoot: string, roo
   return entries.length ? entries.includes(name) : name === "index" || name.startsWith("index.");
 }
 
-export function isPublicModuleImport(resolvedPath: string, target: ModuleContext, rootDir: string, entries?: readonly string[]) {
+export function isPublicModuleImport(
+  resolvedPath: string,
+  target: ModuleContext,
+  rootDir: string,
+  entries?: readonly string[],
+) {
   return isPublicEntryImport(resolvedPath, target.ownerRoot, rootDir, entries);
 }
 
@@ -85,8 +113,11 @@ export function moduleAccess(from: ModuleContext | null, to: ModuleContext, poli
   const parentToChild = from !== null && from.ownerRoot === to.parentRoot;
   const childToParent = from !== null && from.parentRoot === to.ownerRoot;
   if (policy.visibility === "parent-only" && to.isSubmodule && !parentToChild && !childToParent) return "forbidden";
-  if ((parentToChild && policy.parentImports === "implementation") ||
-      (childToParent && (policy.childImportsParent ?? "implementation") === "implementation")) return "implementation";
+  if (
+    (parentToChild && policy.parentImports === "implementation") ||
+    (childToParent && (policy.childImportsParent ?? "implementation") === "implementation")
+  )
+    return "implementation";
   return "public";
 }
 
@@ -103,7 +134,7 @@ export type TransitInfo = {
 export function getTransitModuleInfo(
   relativePath: string,
   modulesDir: string,
-  transitModules: Set<string>
+  transitModules: Set<string>,
 ): TransitInfo | null {
   if (!transitModules.size) return null;
   if (!relativePath.startsWith(`${modulesDir}/`)) return null;
@@ -129,6 +160,11 @@ export function getTransitModuleInfo(
   };
 }
 
-export function isPublicTransitSubmoduleImport(resolvedPath: string, target: TransitInfo, rootDir: string, entries?: readonly string[]) {
+export function isPublicTransitSubmoduleImport(
+  resolvedPath: string,
+  target: TransitInfo,
+  rootDir: string,
+  entries?: readonly string[],
+) {
   return Boolean(target.submoduleRoot && isPublicEntryImport(resolvedPath, target.submoduleRoot, rootDir, entries));
 }

@@ -1,0 +1,21 @@
+{
+  "name": "@open-feod/skill-cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Scripts of the delivered FEOD skill: `feod info` and friends.",
+  "type": "module",
+  "scripts": {
+    "build": "vp pack",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vp test run"
+  },
+  "dependencies": {
+    "@o-feod/config": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:typescript6",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  }
+}

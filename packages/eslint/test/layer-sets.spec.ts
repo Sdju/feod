@@ -8,16 +8,32 @@ import { createConfig, type FeodConfig } from "../src/app/index.js";
 import { frontendLayers } from "../src/modules/Layers/index.js";
 import { importPolicySchema } from "../src/modules/Architecture/index.js";
 import { layerSetSchema } from "../src/modules/Architecture/index.js";
-import schema from "../src/modules/ProjectConfig/feod.schema.json";
+import { feodSchema as schema } from "@o-feod/config";
 import { layerCases, submoduleCases, computedImportCases, visibilityCases } from "./layer-fixtures";
 
 describe("declarative layer sets", () => {
-  for (const fixture of [...layerCases, ...submoduleCases, ...computedImportCases, ...visibilityCases, ...structureCases, ...entryCases, ...globalImportCases]) {
+  for (const fixture of [
+    ...layerCases,
+    ...submoduleCases,
+    ...computedImportCases,
+    ...visibilityCases,
+    ...structureCases,
+    ...entryCases,
+    ...globalImportCases,
+  ]) {
     it(fixture.label, () => {
       const before = JSON.stringify(fixture.config);
-      const messages = new Linter({ cwd: "/project" }).verify(fixture.code,
-        [{ files: ["**/*.{ts,mts,cts}"], languageOptions: { parser: tsParser }, ...createConfig(fixture.config, { rootDir: "/project", preset: "strict" }) }],
-        { filename: `/project/${fixture.file}` });
+      const messages = new Linter({ cwd: "/project" }).verify(
+        fixture.code,
+        [
+          {
+            files: ["**/*.{ts,mts,cts}"],
+            languageOptions: { parser: tsParser },
+            ...createConfig(fixture.config, { rootDir: "/project", preset: "strict" }),
+          },
+        ],
+        { filename: `/project/${fixture.file}` },
+      );
       expect(messages).toEqual(fixture.error ? [expect.objectContaining({ messageId: fixture.error })] : []);
       expect(JSON.stringify(fixture.config)).toBe(before);
     });
@@ -36,12 +52,15 @@ describe("declarative layer sets", () => {
     expect(JSON.stringify(frontendLayers)).toBe(before);
   });
   for (const layers of [
-    {}, { a: { imports: ["missing"] } }, { a: {} },
+    {},
+    { a: { imports: ["missing"] } },
+    { a: {} },
     { a: { imports: [], role: "modules" }, b: { imports: [], role: "modules" } },
     { a: { imports: [], dir: "../outside" } },
     { a: { imports: [], dir: "same" }, b: { imports: [], dir: "./same" } },
     { "/absolute": { imports: [] } },
-  ]) it(`rejects invalid layer set ${JSON.stringify(layers)}`, () => {
-    expect(() => createConfig({ layers } as FeodConfig)).toThrow("FEOD configuration:");
-  });
+  ])
+    it(`rejects invalid layer set ${JSON.stringify(layers)}`, () => {
+      expect(() => createConfig({ layers } as FeodConfig)).toThrow("FEOD configuration:");
+    });
 });

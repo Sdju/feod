@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
-const source = new URL("../packages/eslint/src/modules/ProjectConfig/feod.schema.json", import.meta.url);
+const source = new URL("../packages/config/src/modules/ProjectConfig/feod.schema.json", import.meta.url);
 const target = new URL("../docs/public/feod.schema.json", import.meta.url);
 const contents = readFileSync(source, "utf8");
 if (process.argv.includes("--check")) {

@@ -1,6 +1,6 @@
 {
   "name": "@o-feod/oxlint-structure-plugin",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "FEOD architecture rules and presets for Oxlint",
   "license": "MIT",
   "type": "module",
@@ -27,10 +27,10 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "tsdown --config-loader unrun && tsc --emitDeclarationOnly --declaration --outDir dist",
-    "test": "pnpm lint && vitest run",
+    "build": "vp pack && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "test": "pnpm lint && vp test run",
     "prepublishOnly": "pnpm lint",
-    "lint": "pnpm --filter @o-feod/oxlint-structure-plugin... build && oxlint --config oxlint.config.ts src --deny-warnings"
+    "lint": "pnpm --filter @o-feod/oxlint-structure-plugin... build && node scripts/self-lint.mjs"
   },
   "dependencies": {
     "@o-feod/eslint-structure-plugin": "workspace:^"
@@ -41,8 +41,8 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "oxlint": "1.86.0",
-    "tsdown": "catalog:",
     "typescript": "catalog:",
+    "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
   "engines": {

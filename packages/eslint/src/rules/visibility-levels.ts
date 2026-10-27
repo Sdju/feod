@@ -50,12 +50,7 @@ function startsWithSegments(pathParts: string[], prefix: string[]) {
   return prefix.every((segment, index) => pathParts[index] === segment);
 }
 
-function reportInvalid(
-  context: Rule.RuleContext,
-  node: unknown,
-  level: LevelConfig,
-  maxDepth: number
-) {
+function reportInvalid(context: Rule.RuleContext, node: unknown, level: LevelConfig, maxDepth: number) {
   context.report({
     node: node as Rule.Node,
     messageId: "visibilityDepth",
@@ -106,18 +101,14 @@ const rule: Rule.RuleModule = {
             },
           },
           ignore: {
-            oneOf: [
-              { type: "string" },
-              { type: "array", items: { type: "string" } },
-            ],
+            oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
           },
         },
         additionalProperties: false,
       },
     ],
     messages: {
-      visibilityDepth:
-        "FEOD: level '{{level}}' allows only depth={{maxDepth}} from outside.",
+      visibilityDepth: "FEOD: level '{{level}}' allows only depth={{maxDepth}} from outside.",
     },
   },
   create(context) {
@@ -125,13 +116,8 @@ const rule: Rule.RuleModule = {
     const rootDir = path.resolve(options.rootDir || process.cwd());
     const levels = options.levels || [];
     const srcRoot = options.srcRoot || "src";
-    const layerAliases = getLayerAliases(
-      getLayerDirs(srcRoot, options.layerDirs),
-      options.layerAliases
-    );
-    const transparentNames = new Set(
-      levels.filter((lvl) => lvl.visibility === "transparent").map((lvl) => lvl.name)
-    );
+    const layerAliases = getLayerAliases(getLayerDirs(srcRoot, options.layerDirs), options.layerAliases);
+    const transparentNames = new Set(levels.filter(lvl => lvl.visibility === "transparent").map(lvl => lvl.name));
     const filename = normalizeFilename(getFilename(context), rootDir);
     const isIgnored = createIgnoreMatcher(options.ignore, rootDir);
 
@@ -169,16 +155,10 @@ const rule: Rule.RuleModule = {
           continue;
         }
 
-        const maxDepth =
-          typeof level.maxDepth === "number"
-            ? level.maxDepth
-            : level.visibility === "default"
-              ? 1
-              : 0;
+        const maxDepth = typeof level.maxDepth === "number" ? level.maxDepth : level.visibility === "default" ? 1 : 0;
 
         const afterLevel = toParts.slice(index + 1);
-        const depth = afterLevel.filter((segment) => !transparentNames.has(segment))
-          .length;
+        const depth = afterLevel.filter(segment => !transparentNames.has(segment)).length;
         if (depth > maxDepth) {
           reportInvalid(context, node, level, maxDepth);
           return;

@@ -38,11 +38,7 @@ function normalizeFilename(filename: string, rootDir: string) {
   return path.resolve(rootDir, filename);
 }
 
-function reportInvalid(
-  context: Rule.RuleContext,
-  node: unknown,
-  data: Record<string, string>
-) {
+function reportInvalid(context: Rule.RuleContext, node: unknown, data: Record<string, string>) {
   context.report({
     node: node as Rule.Node,
     messageId: "zigzagImport",
@@ -66,10 +62,7 @@ const rule: Rule.RuleModule = {
           aliasPrefix: { type: "string" },
           aliasRoot: { type: "string" },
           ignore: {
-            oneOf: [
-              { type: "string" },
-              { type: "array", items: { type: "string" } },
-            ],
+            oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
           },
           srcRoot: { type: "string" },
           layerDirs: {
@@ -88,8 +81,7 @@ const rule: Rule.RuleModule = {
       },
     ],
     messages: {
-      zigzagImport:
-        "FEOD: '{{from}}' cannot zig-zag import from '{{to}}'. Use public API.",
+      zigzagImport: "FEOD: '{{from}}' cannot zig-zag import from '{{to}}'. Use public API.",
     },
   },
   create(context) {
@@ -107,9 +99,7 @@ const rule: Rule.RuleModule = {
       return {};
     }
 
-    const moduleCache = createPathMemoizer((filePath) =>
-      getModuleContext(filePath, rootDir, layerDirs.modules)
-    );
+    const moduleCache = createPathMemoizer(filePath => getModuleContext(filePath, rootDir, layerDirs.modules));
     const fromModuleContext = moduleCache.get(filename);
     if (!fromModuleContext) {
       return {};
@@ -118,11 +108,7 @@ const rule: Rule.RuleModule = {
     const transitModules = new Set(options.transitModules ?? []);
 
     function validateImport(node: unknown, sourceValue: unknown) {
-      if (
-        !filename ||
-        typeof sourceValue !== "string" ||
-        !sourceValue.startsWith(".")
-      ) return;
+      if (!filename || typeof sourceValue !== "string" || !sourceValue.startsWith(".")) return;
       const resolved = resolveImportPath(sourceValue, context, filename, {
         rootDir,
         aliasPrefix,
@@ -138,9 +124,14 @@ const rule: Rule.RuleModule = {
 
       // Preserve this rule's relative cross-top-level scope. Nested access
       // policy belongs to layer-imports; ownership and public entries are shared.
-      const transit = getTransitModuleInfo(path.relative(rootDir, resolved).replace(/\\/g, "/"), layerDirs.modules, transitModules);
+      const transit = getTransitModuleInfo(
+        path.relative(rootDir, resolved).replace(/\\/g, "/"),
+        layerDirs.modules,
+        transitModules,
+      );
       const publicImport = transit
-        ? transit.type === "submodule" && isPublicTransitSubmoduleImport(resolved, transit, rootDir, options.publicEntries)
+        ? transit.type === "submodule" &&
+          isPublicTransitSubmoduleImport(resolved, transit, rootDir, options.publicEntries)
         : isPublicModuleImport(resolved, toModule, rootDir, options.publicEntries);
       if (fromModule.moduleRoot !== toModule.moduleRoot && !publicImport) {
         reportInvalid(context, node, {

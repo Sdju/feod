@@ -18,10 +18,17 @@ import noCommonDeep from "../rules/no-common-deep.js";
 import visibilityLevels from "../rules/visibility-levels.js";
 import noSubmoduleOfSubmodule from "../rules/no-submodule-of-submodule.js";
 import pagesPrivateModules from "../rules/pages-private-modules.js";
-import { recommended, strict, createRuleConfig, loadFeodConfig, type FeodConfig, type ConfigOptions } from "../modules/ProjectConfig/index.js";
+import {
+  recommended,
+  strict,
+  createRuleConfig,
+  loadFeodConfig,
+  type FeodConfig,
+  type ConfigOptions,
+} from "../modules/ProjectConfig/index.js";
 
 const rules: Record<string, Rule.RuleModule> = {
-  "confine": withRoots(confine),
+  confine: withRoots(confine),
   "large-files": withRoots(largeFiles),
   "global-files": withRoots(globalFiles),
   "module-names": withRoots(moduleNames),
@@ -54,9 +61,19 @@ const plugin = {
 export default plugin;
 export { configs, rules };
 export { createRuleConfig, loadFeodConfig, FeodConfigError } from "../modules/ProjectConfig/index.js";
-export type { FeodConfig, FeodRootConfig, ConfigOptions, LoadedFeodConfig, NormalizedFeodConfig, NormalizedRootConfig } from "../modules/ProjectConfig/index.js";
+export type {
+  FeodConfig,
+  FeodRootConfig,
+  ConfigOptions,
+  LoadedFeodConfig,
+  NormalizedFeodConfig,
+  NormalizedRootConfig,
+} from "../modules/ProjectConfig/index.js";
 
-export function createConfig(config: FeodConfig = {}, options: ConfigOptions = {}): Linter.Config & ReturnType<typeof createRuleConfig> {
+export function createConfig(
+  config: FeodConfig = {},
+  options: ConfigOptions = {},
+): Linter.Config & ReturnType<typeof createRuleConfig> {
   return { plugins: { [PLUGIN_NAME]: plugin }, ...createRuleConfig(config, options) };
 }
 
@@ -68,7 +85,13 @@ export function configFromProject(options: ConfigOptions = {}): Linter.Config & 
 export type { SubmodulePolicy } from "../modules/Architecture/index.js";
 
 export type { ImportPolicy } from "../modules/Architecture/index.js";
-export { resolveImport, resolveImportOffline, resolveImportPath, resolveExistingPath, isMissingLocalImport } from "../modules/Architecture/index.js";
+export {
+  resolveImport,
+  resolveImportOffline,
+  resolveImportPath,
+  resolveExistingPath,
+  isMissingLocalImport,
+} from "../modules/Architecture/index.js";
 export type { ResolveResult, ResolveOptions } from "../modules/Architecture/index.js";
 
 export type { LargeFileEntry, LargeFilesPolicy } from "../modules/LargeFiles/index.js";
@@ -76,10 +99,29 @@ export { checkLargeFile } from "../modules/LargeFiles/index.js";
 export { largeFilesRows, renderLargeFilesMarkdown } from "../modules/LargeFiles/index.js";
 export type { LargeFileRow, LargeFilesMarkdownOptions } from "../modules/LargeFiles/index.js";
 export type { ConfineEntry, ConfinePolicy } from "../modules/Confine/index.js";
-export type { CyclesPolicy, GlobalFilesPolicy, InventoryPolicy, ModuleNamesPolicy, ModulePolicy } from "../modules/Architecture/index.js";
+export type {
+  CyclesPolicy,
+  GlobalFilesPolicy,
+  InventoryPolicy,
+  ModuleNamesPolicy,
+  ModulePolicy,
+} from "../modules/Architecture/index.js";
 export { buildInventory, getInventory, clearInventoryState } from "../modules/Architecture/index.js";
 export type { InventoryModule, InventoryOptions, RootInventory } from "../modules/Architecture/index.js";
-export { buildModuleGraph, buildFileGraph, getModuleGraph, getFileGraph, clearGraphState } from "../modules/Architecture/index.js";
-export type { DependencyRecord, FileGraph, GraphCycle, GraphOptions, ModuleCycle, ModuleGraph } from "../modules/Architecture/index.js";
+export {
+  buildModuleGraph,
+  buildFileGraph,
+  getModuleGraph,
+  getFileGraph,
+  clearGraphState,
+} from "../modules/Architecture/index.js";
+export type {
+  DependencyRecord,
+  FileGraph,
+  GraphCycle,
+  GraphOptions,
+  ModuleCycle,
+  ModuleGraph,
+} from "../modules/Architecture/index.js";
 export { extractStaticDependencies } from "../modules/Architecture/index.js";
 export type { ExtractedDependency, DependencyKind } from "../modules/Architecture/index.js";

@@ -1,10 +1,4 @@
-export type DependencyKind =
-  | "import"
-  | "export"
-  | "dynamic"
-  | "require"
-  | "import-equals"
-  | "ts-import-type";
+export type DependencyKind = "import" | "export" | "dynamic" | "require" | "import-equals" | "ts-import-type";
 
 export type ExtractedDependency = {
   specifier: string;
@@ -13,9 +7,7 @@ export type ExtractedDependency = {
 };
 
 function stripComments(source: string) {
-  return source
-    .replace(/\/\*[\s\S]*?\*\//g, " ")
-    .replace(/(^|[^:])\/\/.*$/gm, "$1");
+  return source.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/.*$/gm, "$1");
 }
 
 function extractVueScripts(source: string) {
@@ -26,12 +18,7 @@ function extractVueScripts(source: string) {
   return blocks.length ? blocks.join("\n") : source;
 }
 
-function push(
-  out: ExtractedDependency[],
-  specifier: string | undefined,
-  typeOnly: boolean,
-  kind: DependencyKind,
-) {
+function push(out: ExtractedDependency[], specifier: string | undefined, typeOnly: boolean, kind: DependencyKind) {
   if (!specifier) return;
   out.push({ specifier, typeOnly, kind });
 }

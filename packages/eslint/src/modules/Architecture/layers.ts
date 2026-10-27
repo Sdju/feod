@@ -2,10 +2,13 @@ import path from "node:path";
 import { frontendLayers, type LayerSet, type LayerRole } from "../Layers/index.js";
 
 export const layerSetSchema = {
-  type: "object", minProperties: 1,
+  type: "object",
+  minProperties: 1,
   propertyNames: { type: "string", minLength: 1 },
   additionalProperties: {
-    type: "object", additionalProperties: false, required: ["imports"],
+    type: "object",
+    additionalProperties: false,
+    required: ["imports"],
     properties: {
       dir: { type: "string", minLength: 1, pattern: "^(?![/\\\\]|[A-Za-z]:)" },
       imports: { type: "array", items: { type: "string", minLength: 1 }, uniqueItems: true },
@@ -17,21 +20,18 @@ export const layerSetSchema = {
 export type Layer = { name: string; dir: string; imports: readonly string[]; role?: LayerRole };
 
 export function getLayers(srcRoot: string, overrides?: LayerDirs, definitions: LayerSet = frontendLayers): Layer[] {
-  return Object.entries(definitions).map(([name, definition]) => ({
-    name, role: definition.role, imports: definition.imports,
-    dir: path.posix.join(srcRoot, (definition.role && overrides?.[definition.role]) ?? definition.dir ?? name),
-  })).sort((a, b) => b.dir.length - a.dir.length);
+  return Object.entries(definitions)
+    .map(([name, definition]) => ({
+      name,
+      role: definition.role,
+      imports: definition.imports,
+      dir: path.posix.join(srcRoot, (definition.role && overrides?.[definition.role]) ?? definition.dir ?? name),
+    }))
+    .sort((a, b) => b.dir.length - a.dir.length);
 }
 
-export type LayerDirs = {
-  app?: string;
-  pages?: string;
-  modules?: string;
-  common?: string;
-  global?: string;
-};
-
-export type LayerAliases = Record<string, string>;
+import type { LayerAliases, LayerDirs } from "@o-feod/config";
+export type { LayerAliases, LayerDirs };
 
 const DEFAULT_LAYER_DIRS: Required<LayerDirs> = {
   app: "app",
@@ -55,10 +55,7 @@ export function getLayerDirs(srcRoot: string, overrides?: LayerDirs, definitions
   };
 }
 
-export function getLayerAliases(
-  layerDirs: ReturnType<typeof getLayerDirs>,
-  overrides?: LayerAliases
-) {
+export function getLayerAliases(layerDirs: ReturnType<typeof getLayerDirs>, overrides?: LayerAliases) {
   const defaults: LayerAliases = {
     "@app": layerDirs.app,
     "@pages": layerDirs.pages,
@@ -66,5 +63,5 @@ export function getLayerAliases(
     "@common": layerDirs.common,
     "@global": layerDirs.global,
   };
-  return { ...defaults, ...(overrides || {}) };
+  return { ...defaults, ...overrides };
 }

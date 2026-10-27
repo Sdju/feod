@@ -28,11 +28,7 @@ const customDirs = {
   common: "shared",
   global: "globals",
 };
-const fixturesRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "fixtures",
-  "resolver"
-);
+const fixturesRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "resolver");
 
 function filePath(...parts: string[]) {
   return path.join(rootDir, ...parts);
@@ -115,14 +111,7 @@ tester.run("layer-imports", rule, {
       options: [{ rootDir, ignore: ["src/modules/**"] }],
     },
     {
-      filename: filePath(
-        "src",
-        "modules",
-        "Orders",
-        "modules",
-        "Checkout",
-        "index.js"
-      ),
+      filename: filePath("src", "modules", "Orders", "modules", "Checkout", "index.js"),
       code: "import service from '../../service.js';",
       options: [{ rootDir }],
     },
@@ -144,10 +133,12 @@ tester.run("layer-imports", rule, {
       filename: filePath("src", "modules", "Logger.ts"),
       code: "import internal from './Orders/internal.js';",
       options: [{ rootDir }],
-      errors: [{
-        messageId: "invalidModuleImport",
-        data: { fromName: "modules", toName: "Orders" },
-      }],
+      errors: [
+        {
+          messageId: "invalidModuleImport",
+          data: { fromName: "modules", toName: "Orders" },
+        },
+      ],
     },
     {
       filename: filePath("src", "pages", "Home.js"),
@@ -346,14 +337,7 @@ tester.run("layer-imports", rule, {
       ],
     },
     {
-      filename: filePath(
-        "src",
-        "modules",
-        "Orders",
-        "modules",
-        "Checkout",
-        "index.js"
-      ),
+      filename: filePath("src", "modules", "Orders", "modules", "Checkout", "index.js"),
       code: "import payment from '../Payments/internal.js';",
       options: [{ rootDir }],
       errors: [

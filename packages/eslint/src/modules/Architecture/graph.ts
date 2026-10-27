@@ -8,9 +8,7 @@ import { getLayerAliases, getLayerDirs, getLayers } from "./layers.js";
 import { formatModuleName, getModuleContext } from "./modules.js";
 import { resolveImportOffline, type ResolveOptions } from "./resolve.js";
 
-const SOURCE_EXTENSIONS = new Set([
-  ".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs", ".vue",
-]);
+const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs", ".vue"]);
 
 export type DependencyRecord = ExtractedDependency & {
   fromFile: string;
@@ -205,7 +203,11 @@ function cycleFromComponent(nodes: string[], edges: Map<string, Set<string>>): s
   return [...ordered, ordered[0]!];
 }
 
-function collectValueDependencies(files: readonly string[], options: GraphOptions, includeTypes = false): DependencyRecord[] {
+function collectValueDependencies(
+  files: readonly string[],
+  options: GraphOptions,
+  includeTypes = false,
+): DependencyRecord[] {
   const rootDir = path.resolve(options.rootDir);
   const resolveOptions = resolveOptionsFor(options);
   const dependencies: DependencyRecord[] = [];
@@ -273,8 +275,18 @@ export function buildModuleGraph(options: GraphOptions): ModuleGraph {
 
   for (const dependency of dependencies) {
     if (!dependency.toFile) continue;
-    const from = getModuleContext(path.join(rootDir, dependency.fromFile), rootDir, modulesLayer.dir, options.singleFileModules ?? false);
-    const to = getModuleContext(path.join(rootDir, dependency.toFile), rootDir, modulesLayer.dir, options.singleFileModules ?? false);
+    const from = getModuleContext(
+      path.join(rootDir, dependency.fromFile),
+      rootDir,
+      modulesLayer.dir,
+      options.singleFileModules ?? false,
+    );
+    const to = getModuleContext(
+      path.join(rootDir, dependency.toFile),
+      rootDir,
+      modulesLayer.dir,
+      options.singleFileModules ?? false,
+    );
     if (!from || !to || from.ownerRoot === to.ownerRoot) continue;
     // A type-only import of an ancestor is not a real initialization cycle.
     if (dependency.typeOnly && from.ownerRoot.startsWith(`${to.ownerRoot}/`)) continue;

@@ -26,9 +26,25 @@ function filePath(...parts: string[]) {
 
 tester.run("no-zigzag-imports", rule, {
   valid: [
-    { filename: filePath("src", "modules", "Orders", "index.js"), code: "import '../Hub/Child/api.ts';", options: [{ rootDir, publicEntries: ["api.ts"], transitModules: ["Hub"] }] },
-    { filename: filePath("src", "modules", "Orders", "index.js"), code: "import '../User/api.ts';", options: [{ rootDir, publicEntries: ["api.ts"] }] },
-    ...["@/modules/Users", "@modules/Users", "../Users", "../Users/index", "../Users/index.js", "../Users/modules/Profile/index.js", "../Users/modules/Profile/modules/Details/index.js"].map((source) => ({
+    {
+      filename: filePath("src", "modules", "Orders", "index.js"),
+      code: "import '../Hub/Child/api.ts';",
+      options: [{ rootDir, publicEntries: ["api.ts"], transitModules: ["Hub"] }],
+    },
+    {
+      filename: filePath("src", "modules", "Orders", "index.js"),
+      code: "import '../User/api.ts';",
+      options: [{ rootDir, publicEntries: ["api.ts"] }],
+    },
+    ...[
+      "@/modules/Users",
+      "@modules/Users",
+      "../Users",
+      "../Users/index",
+      "../Users/index.js",
+      "../Users/modules/Profile/index.js",
+      "../Users/modules/Profile/modules/Details/index.js",
+    ].map(source => ({
       filename: filePath("src", "modules", "Orders", "index.js"),
       code: `import Users from '${source}';`,
       options: [{ rootDir }],
@@ -50,8 +66,18 @@ tester.run("no-zigzag-imports", rule, {
     },
   ],
   invalid: [
-    { filename: filePath("src", "modules", "Orders", "index.js"), code: "import '../Hub/Child/index.ts';", options: [{ rootDir, publicEntries: ["api.ts"], transitModules: ["Hub"] }], errors: [{ messageId: "zigzagImport" }] },
-    { filename: filePath("src", "modules", "Orders", "index.js"), code: "import '../User/index.js';", options: [{ rootDir, publicEntries: ["api.ts"] }], errors: [{ messageId: "zigzagImport" }] },
+    {
+      filename: filePath("src", "modules", "Orders", "index.js"),
+      code: "import '../Hub/Child/index.ts';",
+      options: [{ rootDir, publicEntries: ["api.ts"], transitModules: ["Hub"] }],
+      errors: [{ messageId: "zigzagImport" }],
+    },
+    {
+      filename: filePath("src", "modules", "Orders", "index.js"),
+      code: "import '../User/index.js';",
+      options: [{ rootDir, publicEntries: ["api.ts"] }],
+      errors: [{ messageId: "zigzagImport" }],
+    },
     {
       filename: filePath("src", "modules", "Orders", "index.js"),
       code: "import '../Users/modules/Profile/modules/Details/private.js';",
