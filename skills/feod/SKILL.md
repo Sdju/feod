@@ -74,7 +74,6 @@ Full matrix, path rules, nested levels, modifications and anti-patterns — [rul
 - Modules export only through `index.ts`; pages and app hold no business logic.
 - If lint is configured, relevant checks pass — see the checklist in [workflows.md](references/workflows.md).
 
-## In this repository
+## More
 
-Docs: `docs/base/`, `docs/structure/`, `docs/linting/`. Examples: `examples/`.
-Plugins: `packages/eslint/`, `packages/oxlint/`.
+FEOD docs, examples and plugin sources: https://github.com/Sdju/feod (`docs/`, `examples/`, `packages/`).

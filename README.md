@@ -101,7 +101,7 @@ export default [
 
 ## 🤖 AI-агенты
 
-В репозитории есть Agent Skill для FEOD: [`skills/feod`](skills/feod) (для Cursor подключён симлинком `.cursor/skills/feod`; это собранный артефакт, исходники — `skill/` и `packages/skill-cli`, сборка — `pnpm run skill:pack`). Он помогает агентам создавать структуру проекта, подключать плагины, разбирать ошибки линтера и чинить нарушения.
+В репозитории есть Agent Skill для FEOD: [`skills/feod`](skills/feod) (для Cursor подключён симлинком `.cursor/skills/feod`; это собранный артефакт, исходники — `skill/` и `packages/skill-cli`, сборка — `pnpm run skill:pack`). Он помогает агентам создавать структуру проекта, подключать плагины, разбирать ошибки линтера и чинить нарушения. Установка и описание работы — на странице [Agent Skill](docs/tools/agent-skill.md).
 
 ## 🛠️ Разработка
 

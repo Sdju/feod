@@ -141,7 +141,7 @@ export default defineConfig({
         collapsible: true,
         items: [
           { text: 'ESLint и Oxlint', link: '/linting/' },
-          { text: 'AI Rule Generator', link: '/tools/ai-rule-generator' },
+          { text: 'Agent Skill', link: '/tools/agent-skill' },
         ]
       },
       {

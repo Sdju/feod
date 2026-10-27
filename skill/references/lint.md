@@ -141,7 +141,7 @@ reads only that root, defaults to cwd, validates fields and rejects conflicting
 sources. `createConfig(config, { rootDir, preset })` validates an inline object.
 Static presets preserve their behavior and never automatically load this JSON.
 
-Supported project fields in `packages/config/src/modules/ProjectConfig/feod.schema.json`:
+Supported project fields (JSON schema `src/modules/ProjectConfig/feod.schema.json` in `@o-feod/config`):
 `$schema`, `srcRoot`, `aliasPrefix`, `aliasRoot`, `layerDirs`, `layerAliases`,
 `ignore`, `common.maxDepth`, `transitModules`, `singleFileModules`, `modulePages`,
 `levels`, `globals`, `modules` (including `publicEntries`, `forbiddenNames`,
@@ -219,7 +219,10 @@ FEOD rules, options, ignores and ESLint flat-config globs first. `No matching
 configuration found` means the comparison did not exercise a rule. Distinguish
 native Oxlint diagnostics from the FEOD namespace.
 
-## Repair plugin implementation in this repository
+## Repair plugin implementation (only inside a checkout of Sdju/feod)
+
+Skip this section in a consumer project: the paths below exist only in the FEOD repository.
+In a consumer, report the suspected plugin defect with a minimal reproducer instead of patching `node_modules`.
 
 - Shared logic: `packages/eslint/src/rules/`, `src/support/{resolve,layers,context,cache,ignore}.ts`.
 - Presets/registration: `packages/eslint/src/{index.ts,config/recommended.ts,config/strict.ts}`.

@@ -8,4 +8,4 @@ FEOD поддерживает инструменты для проверки а�
 
 - [ESLint и Oxlint: установка, конфигурация и каталог правил](/linting/)
 - [Постепенное включение линтера в существующем проекте](/linting/migration)
-- [AI Rule Generator](/tools/ai-rule-generator)
+- [Agent Skill для AI-агентов](/tools/agent-skill)

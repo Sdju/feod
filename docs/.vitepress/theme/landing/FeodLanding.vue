@@ -48,10 +48,10 @@ const tools = [
     cta: 'Документация',
   },
   {
-    title: 'AI rule generator',
+    title: 'Agent Skill',
     description:
-      'Генерируйте правила и шаблоны для AI-ассистентов на основе архитектуры.',
-    link: '/tools/ai-rule-generator',
+      'Научите AI-агента работать по FEOD: структура, импорты, модули и плагины линтера.',
+    link: '/tools/agent-skill',
     cta: 'Открыть',
   },
 ]
