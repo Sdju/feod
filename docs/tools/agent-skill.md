@@ -15,19 +15,35 @@ Agent Skill — готовый пакет инструкций для AI-аге�
 
 ## Установка
 
-Скилл лежит в репозитории в каталоге [`skills/feod`](https://github.com/Sdju/feod/tree/main/skills/feod).
-Он самодостаточен: `SKILL.md`, `references/` и `scripts/feod.mjs`. Скопируйте каталог туда,
-где ваш агент ищет скиллы:
+Скилл лежит в репозитории в каталоге [`skills/feod`](https://github.com/Sdju/feod/tree/main/skills/feod)
+и ставится через [`skills`](https://github.com/vercel-labs/skills) — менеджер скиллов, который
+сам кладёт файлы в каталоги нужных агентов (Claude Code, Cursor и других). Нужен Node.js.
 
 ```sh
-git clone --depth 1 https://github.com/Sdju/feod.git /tmp/feod
-cp -r /tmp/feod/skills/feod .claude/skills/feod    # Claude Code
-cp -r /tmp/feod/skills/feod .cursor/skills/feod    # Cursor
+# в корне проекта
+npx skills add Sdju/feod
+
+# для всех проектов (пользовательский каталог)
+npx skills add Sdju/feod --global
 ```
 
-Для всех проектов сразу используйте пользовательский каталог (`~/.claude/skills/`).
-Чтобы обновить скилл, замените каталог новой копией: файлы скилла под проект не правят,
-проектные настройки хранятся в профиле.
+Команда спросит, в какие агенты установить скилл. Чтобы обойтись без вопросов, укажите агента
+и скилл явно: `npx skills add Sdju/feod --skill feod --agent claude-code --yes`. Флаг `--copy`
+копирует файлы вместо символических ссылок.
+
+Полезные команды:
+
+```sh
+npx skills add Sdju/feod --list   # показать, что есть в репозитории, ничего не устанавливая
+npx skills list                   # установленные скиллы
+npx skills update                 # обновить до последней версии
+npx skills remove feod            # удалить
+```
+
+Установленный каталог самодостаточен: `SKILL.md`, `references/` и `scripts/feod.mjs`. Файлы
+скилла под проект не правят — проектные настройки хранятся в [профиле](#профиль-проекта).
+Скилл можно подключить и вручную: скопируйте `skills/feod` в каталог скиллов агента
+(например, `.claude/skills/feod` или `.cursor/skills/feod`).
 
 ## Что делает агент
 
